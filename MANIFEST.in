@@ -1,0 +1,3 @@
+include README.md LICENSE requirements.txt
+
+global-exclude *test*.py

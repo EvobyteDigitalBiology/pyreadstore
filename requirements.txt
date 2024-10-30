@@ -1,0 +1,5 @@
+# readstore-cli/requirements.py
+
+requests==2.32.3
+pydantic==2.9
+pandas==2.2
