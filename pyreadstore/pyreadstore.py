@@ -79,7 +79,9 @@ class Client():
         if 'READSTORE_FASTQ_EXTENSIONS' in os.environ:
             fastq_extensions = os.environ['READSTORE_FASTQ_EXTENSIONS']
             fastq_extensions = fastq_extensions.split(',')
-            
+        
+        self.fastq_extensions = fastq_extensions
+        
         # Initialize the client
         self.rs_client = rsclient.RSClient(username,
                                             token,
@@ -121,7 +123,7 @@ class Client():
     def list(self,
              project_id: int | None = None,
              project_name: str | None = None,
-             return_type: str | None = None) -> pd.DataFrame:
+             return_type: str | None = None) -> pd.DataFrame | List[dict]:
         
         if return_type:
             self._check_return_type(return_type)
@@ -142,7 +144,7 @@ class Client():
     def get(self,
             dataset_id: int| None = None,
             dataset_name: str | None = None,
-            return_type: str | None = None) -> pd.DataFrame:
+            return_type: str | None = None) -> pd.Series | dict:
         
         if (dataset_id is None) and (dataset_name is None):
             raise rsexceptions.ReadStoreError('Either dataset_id or dataset_name must be provided')
@@ -164,7 +166,7 @@ class Client():
     def get_fastq(self,
                 dataset_id: int | None = None,
                 dataset_name: str | None = None,
-                return_type: str | None = None) -> pd.DataFrame:
+                return_type: str | None = None) -> pd.DataFrame | List[dict]:
         
         if (dataset_id is None) and (dataset_name is None):
             raise rsexceptions.ReadStoreError('Either id or name must be provided')
@@ -180,8 +182,11 @@ class Client():
         
         # Check if the dataset was found
         if fq_dataset == {}:
-            return_cols = rsdataclasses.RSFqFile.model_fields.keys()
-            return pd.DataFrame(columns=return_cols)
+            if return_type == 'pandas':
+                return_cols = rsdataclasses.RSFqFile.model_fields.keys()
+                return pd.DataFrame(columns=return_cols)
+            else:
+                return []
         else:
             fq_dataset = rsdataclasses.RSFqDatasetDetail(**fq_dataset)
             
@@ -307,3 +312,21 @@ class Client():
                                                         outpath,
                                                         project_id,
                                                         project_name)
+            
+    def upload_fastq(self, fastq : List[str] | str):
+        
+        if isinstance(fastq, str):
+            fastq = [fastq]
+        
+        fq_files = []
+        for fq in fastq:
+            if not os.path.exists(fq):
+                raise rsexceptions.ReadStoreError(f'File {fq} not found')
+            if not fq.endswith(tuple(self.fastq_extensions)):
+                raise rsexceptions.ReadStoreError(f'File {fq} is not a valid FASTQ file')
+            fq_files.append(os.path.abspath(fq))
+        
+        self.rs_client.upload_fastq(fq_files)
+        
+            
+    
