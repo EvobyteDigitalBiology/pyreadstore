@@ -1,17 +1,22 @@
-# ReadStore CLI
+# PyReadStore SDK
 
-This README describes the ReadStore Command Line Interface (CLI). The ReadStore CLI is used to upload FASTQ files to the ReadStore database and access Projects, Datasets, metadata and attachment files.
+This README describes PyReadStore, the Python client (SDK) for the ReadStore API. 
 
-The ReadStore CLI enables you to automate your bioinformatics pipelines and workflows.
- 
-Find ReadStore Tutorials and Intro Videos on 
-https://www.youtube.com/@evobytedigitalbio
+PyReadStore can be used to access projects, datasets, metadata and attachment files in the ReadStore Database from  Python code. 
+The package enables you to automate your bioinformatics pipelines, Python scripts and notebooks.
 
-Or as blog posts https://evo-byte.com/blog/
+Check the [ReadStore Github repository](https://github.com/EvobyteDigitalBiology/readstore) for more information on how to get started with ReadStore and setting up your server.
 
-General ReadStore information on www.evo-byte.com/readstore
+More infos on the [ReadStore website](#https://evo-byte.com/readstore/)
 
-For questions reach out to info@evo-byte.com
+Tutorials and Intro Videos: https://www.youtube.com/@evobytedigitalbio
+
+Blog posts and How-Tos: https://evo-byte.com/blog/
+
+For general questions reach out to info@evo-byte.com
+
+Happy analysis :)
+
 
 ## Table of Contents
 - [Description](#description)
@@ -23,17 +28,20 @@ For questions reach out to info@evo-byte.com
 
 ## The Lean Solution for Managing FASTQ and NGS Data
 
-ReadStore is a platform for storing, managing, and integrating genomic data. It speeds up analysis and offers a simple way of managing and sharing FASTQ and NGS datasets. Built-in project and metadata management structures your workflows and a collaborative user interface enhances teamwork — so you can focus on generating insights.
+ReadStore is a platform for storing, managing, and integrating genomic data. It speeds up analysis and offers a simple way of managing and sharing FASTQ and NGS datasets.
+Built-in project and metadata management structures your workflows and a collaborative user interface enhances teamwork — so you can focus on generating insights.
 
-The integrated Webservice enables your to directly retrieve data from ReadStore via the terminal Command-Line-Interface (CLI) or Python / R SDKs.
+The integrated Webservice enables your to directly retrieve data from ReadStore via the terminal Command-Line-Interface (CLI) or Python/R SDKs.
 
 The ReadStore Basic version provides a local webserver with a simple user management. If you need an organization-wide deployment, advanced user and group management or cloud integration please check the ReadStore Advanced versions and reach out to info@evo-byte.com.
 
 ## Description
 
-The ReadStore CLI is used to upload FASTQ files to the ReadStore database and access Projects, Datasets, metadata and attachment files.
+PyReadStore is a Python client (SDK) that lets you easily connect to your ReadStore server and interact with the ReadStore API.
+By importing the pyreadstore package in Python, you can quickly retrieve data from a ReadStore server.
 
-You can use the CLI from your shell, terminal or from your data pipelines and scripts. You are encouraged to embed the ReadStore CLI in any bioinformatics application or pipeline.
+This tool provides streamlined and standardized access to NGS datasets and metadata, helping you run analyses more efficiently and with fewer errors.
+You can easily scale your pipelines, and if you need to migrate or move NGS data, updating the ReadStore database ensures all your workflows stay up-to-date.
 
 
 ## Security and Permissions<a id="backup"></a>
@@ -42,38 +50,50 @@ You can use the CLI from your shell, terminal or from your data pipelines and sc
 
 ### User Accounts and Token<a id="token"></a>
 
-Using the CLI with a ReadStore server requires an active User Account and a Token. You should **never enter your user account password** when working with the CLI.
+Using PyReadStore requires an active user account and a token (and a running ReadStore server). 
+
+You should **never enter your user account password** when working with PyReadStore.
 
 To retrieve your token:
 
-1. Login to the ReadStore App via your browser
+1. Login to the ReadStore app via your browser
 2. Navigate to `Settings` page and click on `Token`
-3. If needed you can regenerate your token (`Reset`). This will invalidate the previous token
+3. You can regenerate your token anytime (`Reset`). This will invalidate the previous token
 
-For uploading FASTQ files your User Account needs to have `Staging Permission`. If you can check this in the `Settings` page of your account. If you not have `Staging Permission`, ask the ReadStore Server Admin to grant you permission.
+For uploading FASTQ files your user account needs to have `Staging Permission`.
+You can check this in the `Settings` page of your account.
+If you not have `Staging Permission`, ask your ReadStore server admin to grant you permission.
 
-### CLI Configuration
+### Setting Your Credentials
 
-After running the `readstore configure` the first time, a configuration file is created in your home directory (`~/.readstore/config`).
-This is create with user specific read-/write permissions (`chmod 600`), make sure to keep restricted permission in order to protect your token.
+You need to provide the PyReadStore client with valid ReadStore credentials.
 
-You find more information on the configuration file below.
+There are different options
+
+1. Load credentials from the ReadStore `config` file. 
+The file is generated by the [ReadStore CLI](https://github.com/EvobyteDigitalBiology/readstore-cli),
+by default in your home directory (`~/.readstore/`). Make sure to keep read permissions to the file restrictive
+
+2. Directly enter your username and token when instantiating a PyReadStore client within your Python code
+
+3. Set username and token via environment variables (`READSTORE_USERNAME`, `READSTORE_TOKEN`). This is useful in container or cloud environments.
+
 
 ## Installation
 
-`pip3 install readstore-cli`
+`pip3 install pyreadstore`
 
 You can perform the install in a conda or venv virtual environment to simplify package management.
 
 A local install is also possible
 
-`pip3 install --user readstore-cli`
+`pip3 install --user pyreadstore`
 
-Make sure that `~/.local/bin` is on your `$PATH` in case you encounter problems when starting the server.
+Validate the install with a module import
 
-Validate the install by running, which should print the ReadStore CLI version
-
-`readstore -v`
+```python 
+import pyreadstore
+```
 
 ## Usage
 
@@ -81,177 +101,168 @@ Detailed tutorials, videos and explanations are found on [YouTube](https://www.y
 
 ### Quickstart
 
-Let's upload some FASTQ files.
+Let's access some dataset and project data from the ReadStore database!
 
-#### 1. Configure CLI
+Make sure a ReadStore server is running and reachable (by default under `127.0.0.1:8000`).
+You can enter (`http://127.0.0.1:8000/api_v1/`) in your browser and should get a response from the API.
 
-Make sure you have the ReadStore CLI installed and a running ReadStore server with your user registered.
+We assume you ran `readstore configure` before to create a config file for your user.
+If not, consult the [ReadStore CLI](https://github.com/EvobyteDigitalBiology/readstore-cli) README on how to set this up.
 
-1. Run `readstore configure`
-
-2. Enter your username and [token](#token)
-3. Select the default output of your CLI requests. You can choose between `text` outputs, comma-separated `csv` or `json`.
-4. Run `readstore configure list` and check if your credentials are correct. 
-
-#### 2. Upload Files
-
-For uploading FASTQ files your User Account needs to have `Staging Permission`. If you can check this in the `Settings` page of your account. If you not have `Staging Permission`, ask the ReadStore Server Admin to grant you permission.
-
-Move to a folder that contains some FASTQ files.
-
-`readstore upload myfile_r1.fastq`
-
-This will upload the file and run the QC check. You can select several files at once using the `*` wildcard.
-The fastq files need tio have default endings `.fastq, .fastq.gz, .fq, .fq.gz`
-
-#### 3. Stage Files
-
-Login to the User Interface on your browser and move to the `Staging` page. Here you find a list of all FASTQ files you just upload. For large files the QC step can take a while to complete. FASTQ files are grouped in Datasets which you can `Check In`. Then they appear in the `Datasets` page and for instance be assigned to a Project.
-
-#### 4. Access Datasets via the CLI
-
-The ReadStore CLI enables programmatic access to Datasets and FASTQ files. Some examples are:
-
-`readstore list` : List all FASTQ files
-
-`readstore get --id 25` : Get detailed view on Dataset 25
-
-`readstore get --id 25 --read1-path` : Get path for Read1 FASTQ file
-
-`readstore get --id 25 --meta` : Get metadata for Dataset 25
-
-`readstore project get --name cohort1 --attachment` : Get attachment files for Project "cohort1"
-
-You can find a full list in the readstore documentation
+We will create a client instance and perform some operations to retrieve data from the ReadStore database.
+More information on all available methods can be found below.
 
 
-### CLI Configuration
+```python 
+import pyreadstore
 
-`readstore configure` manages the CLI configuration. To setup the configuration:
+rs_client = pyreadstore.Client() # Create an instance of the ReadStore client
 
-1. Run `readstore configure`
+datasets = rs_client.list()      # List all datasets and return pandas dataframe
 
-2. Enter your username and [token](#token)
-3. Select the default output of your CLI requests. You can choose between `text` outputs, comma-separated `csv` or `json`.
-4. Run `readstore configure list` and check if your credentials are correct. 
+datasets_project_1 = rs_client.list(project_id = 1) # List all datasets for project 1
 
-If you already have a configuration in place, the CLI will ask you if you want to overwrite the existing credentials. Select `y` if yes.
+datasets_id_25 = rs_client.get(dataset_id = 25)     # Get detailed data for dataset 25
 
-After running the `readstore configure` the first time, a configuration file is created in your home directory (`~/.readstore/config`).
-This is create with user specific read-/write permissions (`chmod 600`), make sure to keep restricted permission in order to protect your token.
+projects = rs_client.list_projects()                # List all projects
 
+projects = rs_client.get_project(project_name = 'MyProject') # Get details for MyProject
+
+fastq_data_id_25 = rs_client.get_fastq(dataset_id = 25)     # Get fastq file data for dataset 25
+
+rs_client.download_attachment(dataset_id = 25,              # Download files attached to dataset 25
+                              attachment_name = 'gene_table.tsv') 
+
+rs_client.upload_fastq(fastq = 'path/to_fastq_r1.fq')       # Upload a FASTQ file
 ```
-[general]
-endpoint_url = http://localhost:8000
-fastq_extensions = ['.fastq', '.fastq.gz', '.fq', '.fq.gz']
-output = csv
 
-[credentials]
-username = myusername
-token = myrandomtoken
-``` 
 
-You can further edit the configuration of the CLI client from this configuration file. In case your ReadStore Django server is not run at the default port 8000, you need to update the `endpoint_url`. If you need to process FASTQ files with file endings other than the those listed in `fastq_extensions`, you can modify the list.
 
-### Upload FASTQ files
 
-For uploading FASTQ files your User Account needs to have `Staging Permission`. If you can check this in the `Settings` page of your account. If you not have `Staging Permission`, ask the ReadStore Server Admin to grant you permission.
+### Configure the Clients
 
-`readstore upload myfile_r1.fastq myfile_r2.fastq ...`
+The Client is the central object and provides authentication against the ReadStore API.
+By default, the client will try to read the `~/.readstore/config` credentials file.
+You can change the directory if your config file is located in another folder.
 
-This will upload the file and run the QC check. You can select several files at once using the `*` wildcard. It can take some time before FASTQ files are available in your `Staging` page depending on how large file are and how long the QC step takes.
+If you set the `username` and `token` arguments, the client will use these credentials instead.
+
+If your ReadStore server is not running under localhost (`127.0.0.1`) port `8000`, you can adapt the default settings.
+
+```python 
+pyreadstore.Client(config_dir: str = '~/.readstore',  # Directory containing ReadStore credentials
+                  username: str | None = None,        # Username
+                  token : str | None = None,          # Token
+                  host: str = 'http://localhost',     # Hostname / IP of ReadStore server
+                  return_type: str = 'pandas',        # Default return types, can be pandas or json
+                  port: int = 8000,                   # Server Port Number
+                  fastq_extensions: List[str] = ['.fastq','.fastq.gz','.fq','.fq.gz']) 
+                  # Accepted FASTQ file extensions for upload validation 
+```
+
+Is is possible to set userame, token, server endpoint and fastq extensions using the listed environment variables. 
+The enironment variables precede over other client configurations.
+
+- `READSTORE_USERNAME` (username)
+- `READSTORE_TOKEN` (token)
+- `READSTORE_ENDPOINT_URL` (`http://host:post`, e.g. `http://localhost:8000`)
+- `READSTORE_FASTQ_EXTENSIONS` (fastq_extensions, `'.fastq',.fastq.gz,.fq,.fq.gz'`)
+
+
+### Access Datasets
+
+```python 
+# List ReadStore Datasets
+
+rs_client.list(project_id: int | None = None,   # Filter datasets for project with id `project_id`
+              project_name: str | None = None,  # Filter datasets for project with name `project_name`
+               return_type: str | None = None   # Return pd.DataFrame or JSON type
+               ) -> pd.DataFrame | List[dict]
+
+# Get ReadStore Dataset Details
+# Provide dataset_id OR dataset_name
+
+rs_client.get(dataset_id: int| None = None,     # Get dataset with id `dataset_id`
+              dataset_name: str | None = None,  # Filter datasets with name `dataset_name`
+              return_type: str | None = None    # Return pd.Series or json(dict)
+              ) -> pd.Series | dict
+
+# Get FASTQ file data for a dataset
+# Provide dataset_id OR dataset_name
+
+rs_client.get_fastq(dataset_id: int| None = None,    # Get fastq data for dataset with id `dataset_id`
+                  dataset_name: str | None = None,   # Get fastq data for dataset `dataset_name`
+                  return_type: str | None = None     # Return pd.Series or json(dict)
+                  ) -> pd.DataFrame | List[dict]
+```
+
 
 ### Access Projects
 
-There are 3 commands for accessing projects, `readstore project list`, `readstore project get` and `readstore project download`.
+```python 
+# List ReadStore Projects
 
-- `list` provides an overview of project, metadata and attachments
-- `get` provides detailed information on individual projects and to its metadata and attachments
-- `download` lets you download attachment files of a project from the ReadStore database
+rs_client.list_projects(return_type: str | None = None   # Return pd.DataFrame or JSON type
+                        ) -> pd.DataFrame | List[dict]
 
-####  readstore project list
+# Get ReadStore Project Details
+# Provide project_id OR project_name
 
-```
-usage: readstore project ls [options]
-
-List Projects
-
-options:
-  -h, --help            show this help message and exit
-  -m, --meta            Get Metadata
-  -a, --attachment      Get Attachment
-  --output {json,text,csv}
-                        Format of command output (see config for default)
+rs_client.get_project(project_id: int| None = None,     # Get dataset with id `project_id`
+                      project_name: str | None = None,  # Filter datasets with name `project_name`
+                      return_type: str | None = None    # Return pd.Series or json(dict)
+                      ) -> pd.Series | dict
 ```
 
-Show project id and name.
+### Download Attachmeents
 
-The `-m/--meta` include metadata for projects as json string in output.
+```python 
+# Download project attachment file from ReadStore Database 
 
-The `-a/--attachment` include attachment names as list in output.
+rs_client.download_project_attachment(attachment_name: str,            # name of attachment file
+                                      project_id: int | None = None,   # project id with attachment
+                                      project_name: str | None = None, # project name with attachment
+                                      outpath: str | None = None)      # Path to download file to
 
-Adapt the output format of the command using the `--output` options.
+# Download dataset attachment file from ReadStore Database 
 
-
-####  readstore project get
-
-```
-usage: readstore project get [options]
-
-Get Project
-
-options:
-  -h, --help            show this help message and exit
-  -id , --id            Get Project by ID
-  -n , --name           Get Project by name
-  -m, --meta            Get only Metadata
-  -a, --attachment      Get only Attachment
-  --output {json,text,csv}
-                        Format of command output (see config for default)
+rs_client.download_attachment(attachment_name: str,             # name of attachment file
+                              dataset_id: int | None = None,    # datatset id with attachment
+                              dataset_name: str | None = None,  # datatset name with attachment
+                              outpath: str | None = None)       # Path to download file to
 ```
 
-Show project details for a project selected either by `--id` or the `--name` argument.
-The project details include description, date of creation, attachments and metadata
+### Upload FASTQ files
 
-The `-m/--meta` shows **only** the metadata with keys in header.
+Upload FASTQ files to ReadStore server. The methods checks if the FASTQ files exist and end with valid FASTQ ending.
 
-The `-a/--attachment` shows **only** the attachments.
+```python 
+# Upload FASTQ files to ReadStore 
 
-Adapt the output format of the command using the `--output` options.
-
-Example: `readstore project get --id 2`
-
-####  readstore project download
-
+rs_client.upload_fastq(fastq : List[str] | str)  # Path of FASTQ files to upload
 ```
-usage: readstore project download [options]
-
-Download Project Attachments
-
-options:
-  -h, --help          show this help message and exit
-  -id , --id          Select Project by ID
-  -n , --name         Select Project by name
-  -a , --attachment   Set Attachment Name to download
-  -o , --outpath      Download path or directory (default . )
-```
-
-Download attachment files for a project. Select a project selected either by `--id` or the `--name` argument.
-
-With the `--attachment` argument you specify the name of the attachment file to download.
-
-Use the `--outpath` to set a directory to download files to.
-
-Example `readstore project download --id 2 -a ProjectQC.pptx -o ~/downloads`
 
 ## Contributing
 
-Please feel free to create an issue for problems with the software or feature suggestions.
+Contributions make this project better! Whether you want to report a bug, improve documentation, or add new features, any help is welcomed!
+
+### How You Can Help
+- Report Bugs
+- Suggest Features
+- Improve Documentation
+- Code Contributions
+
+### Contribution Workflow
+1. Fork the repository and create a new branch for each contribution.
+2. Write clear, concise commit messages.
+3. Submit a pull request and wait for review.
+
+Thank you for helping make this project better!
 
 ## License
 
-ReadStore Basic Server is distributed under a commercial / proprietary license.
-Details are found in the LICENSE file
+The ReadStore CLI is licensed under an Apache 2.0 Open Source License.
+See the LICENSE file for more information.
 
 
 ## Credits and Acknowledgments<a id="acknowledgments"></a>
@@ -259,15 +270,6 @@ Details are found in the LICENSE file
 ReadStore CLI is built upon the following open-source python packages and would like to thank all contributing authors, developers and partners.
 
 - Python (https://www.djangoproject.com/)
-- djangorestframework (https://www.django-rest-framework.org/)
 - requests (https://requests.readthedocs.io/en/latest/)
-- gunicorn (https://gunicorn.org/)
-- pysam (https://pysam.readthedocs.io/en/latest/api.html)
-- pyyaml (https://pyyaml.org/)
-- streamlit (https://streamlit.io/)
 - pydantic (https://docs.pydantic.dev/latest/)
 - pandas (https://pandas.pydata.org/)
-
-
-
-
