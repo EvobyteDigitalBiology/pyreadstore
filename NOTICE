@@ -1,0 +1,19 @@
+readstore-cli
+Copyright 2024 EVOBYTE Digital Biology Dr. Jonathan Alles
+
+pydantic (https://docs.pydantic.dev/latest/)
+Licensed under the MIT License
+Copyright (c) 2017 to present Pydantic Services Inc. and individual contributors. 
+
+pandas (https://pandas.pydata.org/)
+Licensed under the BSD 3-Clause "New" or "Revised" License
+Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+Copyright (c) 2011-2024, Open source contributors.
+
+python (https://www.python.org/)
+Licensed under the PSF License Agreement
+Copyright © 2001-2024 Python Software Foundation; All Rights Reserved
+
+requests (https://requests.readthedocs.io/en/latest/)
+Licensed under the Apache License Version 2.0
+Copyright 2019 Kenneth Reitz
