@@ -131,7 +131,7 @@ class RSClient():
             # Make sure file exists and 
             if not os.path.exists(fq_file):            
                 raise rsexceptions.ReadStoreError(f'File Not Found: {fq_file}')
-            elif not os.access(fq_file, os.R_OK):
+            if not os.access(fq_file, os.R_OK):
                 raise rsexceptions.ReadStoreError(f'No read permissions: {fq_file}')
             
             payload = {'username': self.username,
@@ -196,8 +196,8 @@ class RSClient():
     
     
     def list_fastq_datasets(self,
-                            project_name: str | None = None,
                             project_id: int | None = None,
+                            project_name: str | None = None,
                             role: str | None = None) -> List[dict]:
         """
             List FASTQ Datasets
@@ -263,9 +263,10 @@ class RSClient():
             Dict: Detail response
         """
         
-        
         fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_DATASET_ENDPOINT)
         
+        assert dataset_id or dataset_name, 'dataset_id or dataset_name required'
+
         # Define json for post request
         json = {
             'username': self.username,
@@ -454,7 +455,7 @@ class RSClient():
             rsexceptions.ReadStoreError: Multiple Attachments Found for Project.
         """
 
-        fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_ATTACHMENT_ENDPOINT)
+        fq_attach_endpoint = os.path.join(self.endpoint, self.FQ_ATTACHMENT_ENDPOINT)
         
         assert dataset_id or dataset_name, 'dataset_id or dataset_name required'
         
@@ -470,7 +471,7 @@ class RSClient():
         if dataset_name:
             json['dataset_name'] = dataset_name
         
-        res = requests.post(fq_dataset_endpoint, json = json)
+        res = requests.post(fq_attach_endpoint, json = json)
         
         if not res.status_code in [200,204]:                
             raise rsexceptions.ReadStoreError(f'download_fq_dataset_attachment failed')

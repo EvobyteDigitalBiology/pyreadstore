@@ -139,7 +139,7 @@ rs_client.upload_fastq(fastq = 'path/to_fastq_r1.fq')       # Upload a FASTQ fil
 
 
 
-### Configure the Clients
+### Configure the Python Client
 
 The Client is the central object and provides authentication against the ReadStore API.
 By default, the client will try to read the `~/.readstore/config` credentials file.
@@ -168,6 +168,10 @@ The enironment variables precede over other client configurations.
 - `READSTORE_ENDPOINT_URL` (`http://host:post`, e.g. `http://localhost:8000`)
 - `READSTORE_FASTQ_EXTENSIONS` (fastq_extensions, `'.fastq',.fastq.gz,.fq,.fq.gz'`)
 
+**Possible errors**
+
+    - Connection Error:     If no ReadStore server was found at the provided endpoint
+    - Authentication Error: If provided username or token are not found
 
 ### Access Datasets
 
@@ -261,13 +265,12 @@ Thank you for helping make this project better!
 
 ## License
 
-The ReadStore CLI is licensed under an Apache 2.0 Open Source License.
+The pyreadstore is licensed under an Apache 2.0 Open Source License.
 See the LICENSE file for more information.
-
 
 ## Credits and Acknowledgments<a id="acknowledgments"></a>
 
-ReadStore CLI is built upon the following open-source python packages and would like to thank all contributing authors, developers and partners.
+pyreadstore is built upon the following open-source python packages and would like to thank all contributing authors, developers and partners.
 
 - Python (https://www.djangoproject.com/)
 - requests (https://requests.readthedocs.io/en/latest/)

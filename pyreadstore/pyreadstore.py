@@ -37,6 +37,23 @@ class Client():
                  return_type: str = 'pandas',
                  port: int = 8000,
                  fastq_extensions: List[str] = ['.fastq','.fastq.gz','.fq','.fq.gz']):
+        """_summary_
+
+        URL schema MUST be set
+        
+        Args:
+            config_dir (str, optional): _description_. Defaults to '~/.readstore'.
+            username (str | None, optional): _description_. Defaults to None.
+            token (str | None, optional): _description_. Defaults to None.
+            host (_type_, optional): _description_. Defaults to 'http://localhost'.
+            return_type (str, optional): _description_. Defaults to 'pandas'.
+            port (int, optional): _description_. Defaults to 8000.
+            fastq_extensions (List[str], optional): _description_. Defaults to ['.fastq','.fastq.gz','.fq','.fq.gz'].
+
+        Raises:
+            rsexceptions.ReadStoreError: _description_
+            rsexceptions.ReadStoreError: _description_
+        """
         
         # Check valid return types
         self._check_return_type(return_type)
@@ -44,11 +61,11 @@ class Client():
         
         # If username & token provided, use them to initialize the client
         if username and token:
-            endpoint_url  = f'{host}:{port}'
-            
+            endpoint_url  = f'{host}:{port}'      
         elif username or token:
             raise rsexceptions.ReadStoreError('Both Username and Token must be provided')
         # Case load config from files
+        # TODO Add support for ENV variables ONLY
         else:
             if '~' in config_dir:
                 config_dir = os.path.expanduser(config_dir)
@@ -127,7 +144,6 @@ class Client():
         
         if return_type:
             self._check_return_type(return_type)
-            return_type = return_type
         else:
             return_type = self.return_type
         
