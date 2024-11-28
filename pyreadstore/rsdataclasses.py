@@ -80,3 +80,27 @@ class RSProjectDetail(BaseModel):
     creator: str
     metadata: dict
     attachments: List[str]
+    
+class RSProData(BaseModel):
+    id: int
+    name: str
+    data_type: str
+    version: int
+    dataset_id: int
+    dataset_name: str
+    upload_path: str
+    metadata: dict
+
+class RSProDataDetail(BaseModel):
+    id: int
+    name: str
+    description: str
+    data_type: str
+    version: int
+    created: datetime.datetime
+    valid_to: datetime.datetime | None
+    creator: str
+    dataset_id: int
+    dataset_name: str
+    upload_path: str
+    metadata: dict
