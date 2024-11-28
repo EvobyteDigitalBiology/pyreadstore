@@ -212,6 +212,7 @@ class Client():
                            fq_dataset.fq_file_i2]
             
             fq_file_ids = [int(e) for e in fq_file_ids if not e is None]
+            
             fq_files = [self.rs_client.get_fq_file(fq_file_id) for fq_file_id in fq_file_ids]
             
             if return_type == 'pandas':
@@ -275,7 +276,7 @@ class Client():
     def get_project(self,
                     project_id: int | None = None,
                     project_name: str | None = None,
-                    return_type: str | None = None) -> pd.DataFrame | dict:
+                    return_type: str | None = None) -> pd.Series | dict:
         
         if (project_id is None) and (project_name is None):
             raise rsexceptions.ReadStoreError('Either project_id or project_name must be provided')
@@ -329,20 +330,155 @@ class Client():
                                                         project_id,
                                                         project_name)
             
-    def upload_fastq(self, fastq : List[str] | str):
+    def upload_fastq(self,
+                     fastq : List[str] | str,
+                     fastq_name : List[str] | str | None = None,
+                     read_type: List[str] | str | None = None):
         
         if isinstance(fastq, str):
             fastq = [fastq]
+        if isinstance(fastq_name, str):
+            fastq_name = [fastq_name]
+            assert len(fastq) == len(fastq_name), 'Number of FASTQ files and names must be equal'
+        if isinstance(read_type, str): 
+            read_type = [read_type]
+            assert len(fastq) == len(read_type), 'Number of FASTQ files and read types must be equal'
         
         fq_files = []
-        for fq in fastq:
+        fq_names = []
+        fq_read_types = []
+        for ix, fq in enumerate(fastq):
             if not os.path.exists(fq):
                 raise rsexceptions.ReadStoreError(f'File {fq} not found')
             if not fq.endswith(tuple(self.fastq_extensions)):
                 raise rsexceptions.ReadStoreError(f'File {fq} is not a valid FASTQ file')
             fq_files.append(os.path.abspath(fq))
-        
-        self.rs_client.upload_fastq(fq_files)
-        
             
+            if fastq_name:
+                fq_names.append(fastq_name[ix])
+            else:
+                fq_names.append(None)
+            
+            if read_type:
+                fq_read_types.append(read_type[ix])
+            else:
+                fq_read_types.append(None)
+        
+        for fq, fq_name, fq_read_type in zip(fq_files, fq_names, fq_read_types):            
+            self.rs_client.upload_fastq(fq, fq_name, fq_read_type)
+            
+            
+    def list_pro_data(self,
+                    project_id: int | None = None,
+                    project_name: str | None = None,
+                    dataset_id: int | None = None,
+                    dataset_name: str | None = None,
+                    name: str | None = None,
+                    data_type: str | None = None,
+                    include_archived: bool = False,
+                    return_type: str | None = None) -> pd.DataFrame | List[dict]:
+        
+        if return_type:
+            self._check_return_type(return_type)
+            return_type = return_type
+        else:
+            return_type = self.return_type
+        
+        pro_data = self.rs_client.list_pro_data(project_id=project_id,
+                                                project_name=project_name,
+                                                dataset_id=dataset_id,
+                                                dataset_name=dataset_name,
+                                                name=name,
+                                                data_type=data_type,
+                                                include_archived=include_archived)
+        
+        if return_type == 'pandas':
+            pro_data = self._convert_json_to_pandas(pro_data, rsdataclasses.RSProData)
+        
+        return pro_data
+        
+        
+    def get_pro_data(self,
+                    pro_data_id: int | None = None,
+                    dataset_id: int | None = None,
+                    dataset_name: str | None = None,
+                    name: str | None = None,
+                    version: int | None = None,
+                    return_type: str | None = None) -> pd.Series | dict:
+
+        if return_type:
+            self._check_return_type(return_type)
+            return_type = return_type
+        else:
+            return_type = self.return_type
+        
+        if not pro_data_id:
+            if not name:
+                raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
+            if not dataset_id and not dataset_name:
+                raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
+            
+        pro_data = self.rs_client.get_pro_data(pro_data_id=pro_data_id,
+                                               name=name,
+                                               version=version,
+                                               dataset_id=dataset_id,
+                                               dataset_name=dataset_name)
+        
+        if return_type == 'pandas':
+            pro_data = self._convert_json_to_pandas(pro_data, rsdataclasses.RSProDataDetail)
+        
+        return pro_data
     
+    def upload_pro_data(self,
+                        name: str,
+                        pro_data_file: str,
+                        data_type: str,
+                        description: str = '',
+                        metadata: dict = {},
+                        dataset_id: int | None = None,
+                        dataset_name: str | None = None):
+        
+        
+        fq_dataset = self.rs_client.get_fastq_dataset(dataset_id = dataset_id,
+                                                        dataset_name = dataset_name)
+        if fq_dataset == {}:
+            raise rsexceptions.ReadStoreError('No dataset found to associate ProData with')
+                
+        fq_dataset_id = fq_dataset['id']
+        
+        try:
+            self.rs_client.upload_pro_data(name,
+                                            pro_data_file,
+                                            data_type,
+                                            fq_dataset_id,
+                                            metadata,
+                                            description)
+
+        except rsexceptions.ReadStoreError as e:
+            raise rsexceptions.ReadStoreError(f'Error uploading ProData: {e.message}')
+        
+    def delete_pro_data(self,
+                        pro_data_id: int | None = None,
+                        dataset_id: int | None = None,
+                        dataset_name: str | None = None,
+                        name: str | None = None,
+                        version: int | None = None):
+                
+        if not pro_data_id:
+            if not name:
+                raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
+            if not dataset_id and not dataset_name:
+                raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
+        
+        try:
+            self.rs_client.delete_pro_data(pro_data_id,
+                                            name,
+                                            dataset_id,
+                                            dataset_name,
+                                            version)
+            
+        except rsexceptions.ReadStoreError as e:
+            if 'ProData not found' in e.message:
+                raise rsexceptions.ReadStoreError(f'ReadStore Error: ProData not found\n')
+            else:
+                raise rsexceptions.ReadStoreError(f'ReadStore Error: {e.message}\n')
