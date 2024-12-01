@@ -608,6 +608,8 @@ class Client():
         """Upload ProData
         
         Upload ProData to ReadStore
+        
+        Must provide dataset_id or dataset_name
 
         Args:
             name: Set ProData name
