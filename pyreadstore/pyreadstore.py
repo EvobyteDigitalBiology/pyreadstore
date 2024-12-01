@@ -42,17 +42,17 @@ class Client():
         URL schema MUST be set
         
         Args:
-            config_dir (str, optional): _description_. Defaults to '~/.readstore'.
-            username (str | None, optional): _description_. Defaults to None.
-            token (str | None, optional): _description_. Defaults to None.
-            host (_type_, optional): _description_. Defaults to 'http://localhost'.
-            return_type (str, optional): _description_. Defaults to 'pandas'.
-            port (int, optional): _description_. Defaults to 8000.
-            fastq_extensions (List[str], optional): _description_. Defaults to ['.fastq','.fastq.gz','.fq','.fq.gz'].
+            config_dir: Path to dir containing config. Defaults to '~/.readstore'.
+            username: Username. Defaults to None.
+            token: User Token. Defaults to None.
+            host: Host address. Defaults to 'http://localhost'.
+            return_type: Default return type. Defaults to 'pandas'.
+            port: ReadStore Server port. Defaults to 8000.
+            fastq_extensions: Allowed extensions to fastq. Defaults to ['.fastq','.fastq.gz','.fq','.fq.gz'].
 
         Raises:
-            rsexceptions.ReadStoreError: _description_
-            rsexceptions.ReadStoreError: _description_
+            rsexceptions.ReadStoreError: User name and token must be provided
+            rsexceptions.ReadStoreError: Config file not found
         """
         
         # Check valid return types
@@ -107,8 +107,23 @@ class Client():
         
         
     def _convert_json_to_pandas(self,
-                            json_data: List[dict] | dict,
-                            validation_class: BaseModel) -> pd.DataFrame | pd.Series:
+                                json_data: List[dict] | dict,
+                                validation_class: BaseModel) -> pd.DataFrame | pd.Series:
+        """_convert_json_to_pandas
+
+        Convert JSON data to pandas DataFrame or Series
+        
+        Args:
+            json_data: List or dict of JSON data
+            validation_class: Pydantic validation class
+
+        Raises:
+            rsexceptions.ReadStoreError: Invalid JSON data
+
+        Returns:
+            pd.DataFrame | pd.Series: Pandas DataFrame or Series
+        """
+        
         
         if isinstance(json_data, dict):
             if json_data == {}:
@@ -131,17 +146,39 @@ class Client():
             raise rsexceptions.ReadStoreError('Invalid JSON data')
     
     def _check_return_type(self, return_type: str):
+        """_check_return_type
+        
+        Check if return type is valid
+        
+        Args:
+            return_type: Return type
+
+        Raises:
+            rsexceptions.ReadStoreError: Invalid return type 
+        """
+        
         if return_type not in Client.RETURN_TYPES:
             raise rsexceptions.ReadStoreError(f'Invalid return type. Must be in {Client.RETURN_TYPES}')
         
     def get_return_type(self) -> str:
+        """get_return_type"""
         return self.return_type
      
     def list(self,
              project_id: int | None = None,
              project_name: str | None = None,
              return_type: str | None = None) -> pd.DataFrame | List[dict]:
-        
+        """List ProData
+
+        Args:
+            project_id: Filter by project_id. Defaults to None.
+            project_name: Filter by project_name. Defaults to None.
+            return_type: Specify return type. Default use return type from object.
+
+        Returns:
+            pd.DataFrame | List[dict]: List of ProData
+        """
+
         if return_type:
             self._check_return_type(return_type)
         else:
@@ -161,7 +198,20 @@ class Client():
             dataset_id: int| None = None,
             dataset_name: str | None = None,
             return_type: str | None = None) -> pd.Series | dict:
+        """Get Dataset
         
+        Args:
+            dataset_id: Select by ID. Defaults to None.
+            dataset_name: Select by Name. Defaults to None.
+            return_type: Specify return type. Default use return type from object.
+
+        Raises:
+            rsexceptions.ReadStoreError: Either dataset_id or dataset_name must be provided
+
+        Returns:
+            pd.Series | dict: Dataset
+        """
+            
         if (dataset_id is None) and (dataset_name is None):
             raise rsexceptions.ReadStoreError('Either dataset_id or dataset_name must be provided')
             
@@ -183,6 +233,21 @@ class Client():
                 dataset_id: int | None = None,
                 dataset_name: str | None = None,
                 return_type: str | None = None) -> pd.DataFrame | List[dict]:
+        """Get FASTQ files
+
+        Get FASTQ files by dataset_id or dataset_name
+        
+        Args:
+            dataset_id: Select by ID. Defaults to None.
+            dataset_name: Select by Name. Defaults to None.
+            return_type: Specify return type. Default use return type from object.
+
+        Raises:
+            rsexceptions.ReadStoreError: Either id or name must be provided
+
+        Returns:
+            pd.DataFrame | List[dict]: FASTQ files
+        """
         
         if (dataset_id is None) and (dataset_name is None):
             raise rsexceptions.ReadStoreError('Either id or name must be provided')
@@ -220,11 +285,27 @@ class Client():
 
             return fq_files
         
+
     def download_attachment(self,
                             attachment_name: str,
                             dataset_id: int | None = None,
                             dataset_name: str | None = None,
                             outpath: str | None = None):
+        """Download attachment
+
+        Specify dataset_id or dataset_name
+        
+        Args:
+            attachment_name: Select attachment by name
+            dataset_id: Select Dataset by ID. Defaults to None.
+            dataset_name: Select Dataset by Name. Defaults to None.
+            outpath: Set outpath. Defaults to None.
+
+        Raises:
+            rsexceptions.ReadStoreError: Dataset not found
+            rsexceptions.ReadStoreError: Attachment not found
+            rsexceptions.ReadStoreError: Output directory does not exist
+        """
         
         if (dataset_id is None) and (dataset_name is None):
             raise rsexceptions.ReadStoreError('Either id or name must be provided')
@@ -258,7 +339,15 @@ class Client():
     
     def list_projects(self,
                       return_type: str | None = None) -> pd.DataFrame | List[dict]:
-        
+        """List Projects
+
+        Args:
+            return_type: Define return type. Defaults to None.
+
+        Returns:
+            pd.DataFrame | List[dict]: Projects
+        """
+            
         if return_type:
             self._check_return_type(return_type)
             return_type = return_type
@@ -277,6 +366,19 @@ class Client():
                     project_id: int | None = None,
                     project_name: str | None = None,
                     return_type: str | None = None) -> pd.Series | dict:
+        """Get Project
+
+        Args:
+            project_id: Project ID. Defaults to None.
+            project_name: Project Name. Defaults to None.
+            return_type: Specify return type. Default use return type from object.
+
+        Raises:
+            rsexceptions.ReadStoreError: _description_
+
+        Returns:
+            pd.Series | dict: _description_
+        """
         
         if (project_id is None) and (project_name is None):
             raise rsexceptions.ReadStoreError('Either project_id or project_name must be provided')
@@ -300,6 +402,22 @@ class Client():
                                    project_id: int | None = None,
                                    project_name: str | None = None,
                                    outpath: str | None = None):
+        """Download Project Attachment
+
+        Specify project_id or project_name
+        
+        Args:
+            attachment_name: Select attachment by name
+            project_id: Set Project ID. Defaults to None.
+            project_name: Set Project Name. Defaults to None.
+            outpath: Set outpath. Defaults to None.
+
+        Raises:
+            rsexceptions.ReadStoreError: Specify project_id or project_name
+            rsexceptions.ReadStoreError: Project not found
+            rsexceptions.ReadStoreError: Attachment not found
+            rsexceptions.ReadStoreError: Output directory does not exist
+        """
         
         if (project_id is None) and (project_name is None):
             raise rsexceptions.ReadStoreError('Either id or name must be provided')
@@ -334,14 +452,28 @@ class Client():
                      fastq : List[str] | str,
                      fastq_name : List[str] | str | None = None,
                      read_type: List[str] | str | None = None):
+        """Upload FASTQ files
+        
+        Args:
+            fastq: List of FASTQ files or single FASTQ file
+            fastq_name: List or single names of FASTQ files. Defaults to None.
+            read_type: List of read_types. Defaults to None.
+
+        Raises:
+            rsexceptions.ReadStoreError: FASTQ file not found
+            rsexceptions.ReadStoreError: FASTQ file not valid
+        """
         
         if isinstance(fastq, str):
             fastq = [fastq]
         if isinstance(fastq_name, str):
             fastq_name = [fastq_name]
-            assert len(fastq) == len(fastq_name), 'Number of FASTQ files and names must be equal'
         if isinstance(read_type, str): 
             read_type = [read_type]
+            
+        if fastq_name:
+            assert len(fastq) == len(fastq_name), 'Number of FASTQ files and names must be equal'
+        if read_type:
             assert len(fastq) == len(read_type), 'Number of FASTQ files and read types must be equal'
         
         fq_files = []
@@ -377,6 +509,23 @@ class Client():
                     data_type: str | None = None,
                     include_archived: bool = False,
                     return_type: str | None = None) -> pd.DataFrame | List[dict]:
+        """List ProData
+
+        List Processed Data
+        
+        Args:
+            project_id: Filter by Project ID. Defaults to None.
+            project_name: Filter by Project Name. Defaults to None.
+            dataset_id: Filter by Dataset ID. Defaults to None.
+            dataset_name: Filter by Dataset Name. Defaults to None.
+            name: Filter by name. Defaults to None.
+            data_type: Filter by data type. Defaults to None.
+            include_archived: Return archived. Defaults to False.
+            return_type: Specify return type. Default use return type from object.
+
+        Returns:
+            pd.DataFrame | List[dict]: List of ProData
+        """
         
         if return_type:
             self._check_return_type(return_type)
@@ -405,7 +554,25 @@ class Client():
                     name: str | None = None,
                     version: int | None = None,
                     return_type: str | None = None) -> pd.Series | dict:
+        """Get ProData
+            
+            Return ProData by ID or Name + Dataset ID/Name 
+            
+            Args:
+                pro_data_id: ProData ID. Defaults to None.
+                dataset_id: Dataset ID. Defaults to None.
+                dataset_name: Dataset Name. Defaults to None.
+                name: ProData Name. Defaults to None.
+                version: ProData Version. Defaults to None.
+                return_type: Specify return type. Default use return type from object.
+            
+            Raises:
+                rsexceptions.ReadStoreError: Either pro_data_id or name + dataset_id/dataset_name must be provided
 
+            Returns:
+                pd.Series | dict: ProData
+        """
+        
         if return_type:
             self._check_return_type(return_type)
             return_type = return_type
@@ -429,6 +596,7 @@ class Client():
         
         return pro_data
     
+    
     def upload_pro_data(self,
                         name: str,
                         pro_data_file: str,
@@ -437,7 +605,23 @@ class Client():
                         metadata: dict = {},
                         dataset_id: int | None = None,
                         dataset_name: str | None = None):
+        """Upload ProData
         
+        Upload ProData to ReadStore
+
+        Args:
+            name: Set ProData name
+            pro_data_file: Set ProData file path
+            data_type: Set ProData data type
+            description: Description for ProData. Defaults to ''.
+            metadata: Metadata for ProData. Defaults to {}.
+            dataset_id: Dataset ID. Defaults to None.
+            dataset_name: Dataset Name. Defaults to None.
+
+        Raises:
+            rsexceptions.ReadStoreError: Dataset not found
+            rsexceptions.ReadStoreError: Error uploading ProData
+        """
         
         fq_dataset = self.rs_client.get_fastq_dataset(dataset_id = dataset_id,
                                                         dataset_name = dataset_name)
@@ -450,9 +634,9 @@ class Client():
             self.rs_client.upload_pro_data(name,
                                             pro_data_file,
                                             data_type,
-                                            fq_dataset_id,
-                                            metadata,
-                                            description)
+                                            dataset_id=fq_dataset_id,
+                                            metadata=metadata,
+                                            description=description)
 
         except rsexceptions.ReadStoreError as e:
             raise rsexceptions.ReadStoreError(f'Error uploading ProData: {e.message}')
@@ -463,20 +647,35 @@ class Client():
                         dataset_name: str | None = None,
                         name: str | None = None,
                         version: int | None = None):
-                
+        """Delete ProData
+
+        Delete ProData by ID or Name + Dataset ID/Name
+        
+        Args:
+            pro_data_id: Delete by ID. Defaults to None.
+            dataset_id: Set by Dataset ID. Defaults to None.
+            dataset_name: Set by Dataset Name. Defaults to None.
+            name: Set by Name. Defaults to None.
+            version: Set version to delete. Defaults to None, which deletes valid version.
+
+        Raises:
+            rsexceptions.ReadStoreError: Either pro_data_id or name + dataset_id/dataset_name must be provided
+            rsexceptions.ReadStoreError: Processed Data not found
+        """
+
         if not pro_data_id:
             if not name:
                 raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
             if not dataset_id and not dataset_name:
                 raise rsexceptions.ReadStoreError('Either pro_data_id or name + dataset_id/dataset_name must be provided')
-        
+
         try:
             self.rs_client.delete_pro_data(pro_data_id,
                                             name,
                                             dataset_id,
                                             dataset_name,
                                             version)
-            
+
         except rsexceptions.ReadStoreError as e:
             if 'ProData not found' in e.message:
                 raise rsexceptions.ReadStoreError(f'ReadStore Error: ProData not found\n')
