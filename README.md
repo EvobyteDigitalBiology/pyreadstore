@@ -7,7 +7,7 @@ The package enables you to automate your bioinformatics pipelines, Python script
 
 Check the [ReadStore Github repository](https://github.com/EvobyteDigitalBiology/readstore) for more information on how to get started with ReadStore and setting up your server.
 
-More infos on the [ReadStore website](#https://evo-byte.com/readstore/)
+More infos on the [ReadStore website](https://evo-byte.com/readstore/)
 
 Tutorials and Intro Videos: https://www.youtube.com/@evobytedigitalbio
 
@@ -22,16 +22,23 @@ Happy analysis :)
 - [Description](#description)
 - [Installation](#installation)
 - [Usage](#usage)
+    1. [Quickstart](#quickstart)
+    2. [Client Config](#client_config)
+    3. [Datasets](#access_datasets)
+    4. [Project](#access_projects)
+    5. [ProData](#access_prodata)
+    6. [Download](#download_attach)
+    7. [Upload FASTQ](#upload_fastq)
 - [Contributing](#contributing)
 - [License](#license)
 - [Credits and Acknowledgments](#acknowledgments)
 
 ## The Lean Solution for Managing FASTQ and NGS Data
 
-ReadStore is a platform for storing, managing, and integrating genomic data. It speeds up analysis and offers a simple way of managing and sharing FASTQ and NGS datasets.
+ReadStore is a platform for storing, managing, and integrating omics data. It speeds up analysis and offers a simple way of managing and sharing NGS omics datasets, metadata and processed data (**Pro**cessed **Data**).
 Built-in project and metadata management structures your workflows and a collaborative user interface enhances teamwork — so you can focus on generating insights.
 
-The integrated Webservice enables your to directly retrieve data from ReadStore via the terminal Command-Line-Interface (CLI) or Python/R SDKs.
+The integrated Webservice (API) enables your to directly retrieve data from ReadStore via the terminal [Command-Line-Interface (CLI)](https://github.com/EvobyteDigitalBiology/readstore-cli) or [Python](https://github.com/EvobyteDigitalBiology/pyreadstore) / [R](https://github.com/EvobyteDigitalBiology/r-readstore) SDKs.
 
 The ReadStore Basic version provides a local webserver with a simple user management. If you need an organization-wide deployment, advanced user and group management or cloud integration please check the ReadStore Advanced versions and reach out to info@evo-byte.com.
 
@@ -99,7 +106,7 @@ import pyreadstore
 
 Detailed tutorials, videos and explanations are found on [YouTube](https://www.youtube.com/playlist?list=PLk-WMGySW9ySUfZU25NyA5YgzmHQ7yquv) or on the [**EVO**BYTE blog](https://evo-byte.com/blog).
 
-### Quickstart
+### Quickstart<a id="quickstart"></a>
 
 Let's access some dataset and project data from the ReadStore database!
 
@@ -118,11 +125,15 @@ import pyreadstore
 
 rs_client = pyreadstore.Client() # Create an instance of the ReadStore client
 
+# Manage Datasets
+
 datasets = rs_client.list()      # List all datasets and return pandas dataframe
 
 datasets_project_1 = rs_client.list(project_id = 1) # List all datasets for project 1
 
 datasets_id_25 = rs_client.get(dataset_id = 25)     # Get detailed data for dataset 25
+
+# Manage Projects
 
 projects = rs_client.list_projects()                # List all projects
 
@@ -133,13 +144,30 @@ fastq_data_id_25 = rs_client.get_fastq(dataset_id = 25)     # Get fastq file dat
 rs_client.download_attachment(dataset_id = 25,              # Download files attached to dataset 25
                               attachment_name = 'gene_table.tsv') 
 
-rs_client.upload_fastq(fastq = 'path/to_fastq_r1.fq')       # Upload a FASTQ file
+# Manage Processed Data
+
+rs_client.upload_pro_data(name = 'sample_1_count_matrix',      # Set name of count matrix
+                            pro_data_file = 'path/to/sample_1_counts.h5',   # Set file path
+                            data_type = 'count_matrix',                     # Set type to 'count_matrix'
+                            dataset_id = 25)                                # Set dataset id for upload
+
+pro_data_project_1 = rs_client.list_pro_data(project_id = 1) # Get all ProData entries for Project 1
+
+pro_data = rs_client.get_pro_data(name = 'sample_1_count_matrix',   # Set name to sample_1_count_matrix
+                                dataset_id = 25)                    # dataset_id
+
+pro_data_id = rs_client.delete_pro_data(name = 'sample_1_count_matrix',
+                                        dataset_id = 25)
+
+# Ingest FASTQ files
+
+rs_client.upload_fastq(fastq = ['path/to_fastq_r1.fq', 'path/to_fastq_r2.fq'], # Upload a FASTQ files
+                        fastq_name = ['sample_rep_1_r1', 'sample_rep_1_r2'],    # Set FASTQ names
+                        read_type = ['R1', 'R2'])                               # Set individual FASTQ read types
 ```
 
 
-
-
-### Configure the Python Client
+### Configure the Python Client<a id="client_config"></a>
 
 The Client is the central object and provides authentication against the ReadStore API.
 By default, the client will try to read the `~/.readstore/config` credentials file.
@@ -172,8 +200,9 @@ The enironment variables precede over other client configurations.
 
     - Connection Error:     If no ReadStore server was found at the provided endpoint
     - Authentication Error: If provided username or token are not found
+    - No Permission to Upload/Delete FASTQ/ProData: User has no [Staging Permissions]
 
-### Access Datasets
+### Access Datasets<a id="access_datasets"></a>
 
 ```python 
 # List ReadStore Datasets
@@ -201,7 +230,7 @@ rs_client.get_fastq(dataset_id: int| None = None,    # Get fastq data for datase
 ```
 
 
-### Access Projects
+### Access Projects<a id="access_projects"></a>
 
 ```python 
 # List ReadStore Projects
@@ -218,7 +247,55 @@ rs_client.get_project(project_id: int| None = None,     # Get dataset with id `p
                       ) -> pd.Series | dict
 ```
 
-### Download Attachmeents
+### Access **Pro**cessed **Data**<a id="access_prodata"></a>
+
+```python 
+# Upload Processed Data
+
+rs_client.upload_pro_data(name: str,                # Name of ProData
+                        pro_data_file: str,         # Set ProData file path
+                        data_type: str,             # Set ProData data type
+                        description: str = '',      # Description for ProData
+                        metadata: dict = {},        # MetaData
+                        dataset_id: int | None = None,  # Dataset ID to assign ProData to
+                        dataset_name: str | None = None)# Dataset Name to assign ProData to
+
+# Must provide dataset_id or dataset_name
+
+# List and filter Processed Data
+
+rs_client.list_pro_data(project_id: int | None = None,      # Filter by Project ID
+                        project_name: str | None = None,    # Filter by Project Name
+                        dataset_id: int | None = None,      # Filter by Dataset ID
+                        dataset_name: str | None = None,    # Filter by Dataset Name
+                        name: str | None = None,            # Filter by ProData name
+                        data_type: str | None = None,       # Filter by ProData data type
+                        include_archived: bool = False,     # Include archived
+                        return_type: str | None = None) -> pd.DataFrame | List[dict]
+
+# Get individual ProData entry
+
+rs_client.get_pro_data(pro_data_id: int | None = None,  # Get ProData by ID
+                        dataset_id: int | None = None,  # Get ProData by Dataset ID
+                        dataset_name: str | None = None, # Get ProData by Dataset Name
+                        name: str | None = None,        # Get ProData by Name ID
+                        version: int | None = None,     # Get specific verion, None returns latest valid version
+                        return_type: str | None = None) -> pd.Series | dict
+
+# Provide ID or Name + Dataset ID/Name
+
+# Delete ProData entry
+
+rs_client.delete_pro_data(pro_data_id: int | None = None,   # Delete by ProData ID
+                        dataset_id: int | None = None,      # Delete by Dataset ID
+                        dataset_name: str | None = None,    # Delete by Dataset Name
+                        name: str | None = None,            # Delete by name
+                        version: int | None = None):        # Delete specific version
+
+# Provide ID or Name + Dataset ID/Name for delete
+```
+
+### Download Attachments<a id="download_attach"></a>
 
 ```python 
 # Download project attachment file from ReadStore Database 
@@ -236,7 +313,7 @@ rs_client.download_attachment(attachment_name: str,             # name of attach
                               outpath: str | None = None)       # Path to download file to
 ```
 
-### Upload FASTQ files
+### Upload FASTQ files<a id="upload_fastq"></a>
 
 Upload FASTQ files to ReadStore server. The methods checks if the FASTQ files exist and end with valid FASTQ ending.
 
