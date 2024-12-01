@@ -40,8 +40,10 @@ class RSClient:
             token: ReadStore user token
             endpoint: The endpoint URL for the ReadStore API
             output_format: The default output format for the client
+            auth: HTTP Basic Authentication Object
 
         Methods:
+            validate_charset: Validate string for ReadStore object naming conventions
             get_output_format: Get Output Format set for client
             upload_fastq: Upload Fastq Files
             get_fq_file: Get Fastq File
@@ -52,6 +54,11 @@ class RSClient:
             get_project: Get Project by id or name
             download_project_attachment: Download Project Attachments
             download_fq_dataset_attachment: Download Fastq Attach
+            upload_pro_data: Create ProDat entries
+            list_pro_data: List ProData
+            get_pro_data: Get ProData entry by ID or name
+            delete_pro_data: Delete ProData entry by ID or name
+            
     """
     
     REST_API_VERSION = "api_x_v1/"
@@ -583,20 +590,28 @@ class RSClient:
                         name: str,
                         pro_data_path: str,
                         data_type: str,
-                        dataset_id: int,
+                        dataset_id: int | None = None,
+                        dataset_name: str | None = None,
                         metadata: dict = {},
                         description: str = "") -> None:
         """Upload Processed Data
 
-        Upload Pro Data to ReadStore
-
+        Upload ProData files to ReadStore.
+        
         Args:
-            pro_data: Pro Data in JSON format
-
+            name: Name of ProData
+            pro_data_path: Path to ProData file
+            data_type: Data Type of ProData file
+            dataset_id: Dataset ID to attach ProData
+            dataset_name: Dataset Name to attach ProData
+            metadata: Metadata for ProData entry
+            description: Description of ProData entry
+            
         Raises:
-            rsexceptions.ReadStoreError: If upload request failed
+            rsexceptions.ReadStoreError: If file is not found
+            rsexceptions.ReadStoreError: Upload ProData
         """
-
+        
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
         
         # Run parallel uploads of fastq files
@@ -615,19 +630,20 @@ class RSClient:
             "upload_path": pro_data_path,
             "metadata": metadata,
             "description" : description,
-            "fq_dataset": dataset_id
         }
 
-        res = requests.post(pro_data_endpoint, json=json, auth=self.auth)
-
+        if dataset_id:
+            json['dataset_id'] = dataset_id
+        if dataset_name:
+            json['dataset_name'] = dataset_name
         
-        print(json)
-        print(res.text)
+        res = requests.post(pro_data_endpoint, json=json, auth=self.auth)
         
         if res.status_code == 403:
             raise rsexceptions.ReadStoreError(f"Upload ProData Failed: {res.json().get('detail')}")
         elif res.status_code not in [201, 204]:
             raise rsexceptions.ReadStoreError("upload_pro_data failed")
+        
         
     def list_pro_data(self,
                       project_id: int | None = None,
@@ -639,16 +655,23 @@ class RSClient:
                       include_archived: bool = False) -> List[Dict]:
         """List Processed Data
 
-        List Pro Data for Dataset
-
+        List Pro Data and filter by Project, Dataset, ProData Name, Data Type
+        Include archived ProData if include_archived is True, else only return valid ProData
+        
         Args:
-            dataset_id: Dataset ID
-
+            project_id: Filter by Project ID 
+            project_name: Filter by Project Name
+            dataset_id: Filter by Dataset ID
+            dataset_name: Filter by Dataset Name
+            name: Filter by ProData Name
+            data_type: Filter by Data Type
+            include_archived: Include archived ProData
+            
         Raises:
             rsexceptions.ReadStoreError: If request failed
-
+            
         Returns:
-            List[Dict]: List of Pro Data
+            List[Dict]: List of Pro Data as json
         """
 
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
@@ -680,16 +703,21 @@ class RSClient:
                     version: int | None = None,
                     dataset_id: int | None = None,
                     dataset_name: str | None = None) -> List[Dict]:   
-        
         """List Processed Data
 
-        List Pro Data for Dataset
+        Get Pro Data entry
 
         Args:
+            pro_data_id: Pro Data ID
+            name: Pro Data Name
+            version: Pro Data Version
             dataset_id: Dataset ID
-
+            dataset_name: Dataset Name
+            version: Pro Data Version
+            
         Raises:
             rsexceptions.ReadStoreError: If request failed
+            rsexceptions.ReadStoreError: If multiple ProData found with same name
 
         Returns:
             List[Dict]: List of Pro Data
@@ -697,15 +725,14 @@ class RSClient:
 
         if not pro_data_id:
             assert name and (dataset_id or dataset_name), "name and dataset_id or dataset_name required"
-            
+
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
-        
+
         if not version:
             valid = 'true'
         else:
             valid = 'false'
-        
-    
+
         # Define json for post request
         json = {
             'dataset_id': dataset_id,
@@ -715,7 +742,7 @@ class RSClient:
             'valid': valid,
             'detail': 'true'
         }
-                
+
         if pro_data_id:
             res = requests.get(pro_data_endpoint + f'{pro_data_id}/', auth=self.auth)
         else:
@@ -736,25 +763,30 @@ class RSClient:
             else:
                 return res.json()[0]
             
+            
     def delete_pro_data(self,
                         pro_data_id: int | None = None,
                         name: str | None = None,
                         dataset_id: int | None = None,
                         dataset_name: str | None = None,
-                        version: int | None = None) -> List[Dict]:   
-            
+                        version: int | None = None) -> int:   
         """Delete Processed Data
 
-        Delete Pro Data for Dataset
+        Delete Pro Data Entry by ID or Name
 
         Args:
+            pro_data_id: Pro Data ID
+            name: Pro Data Name
             dataset_id: Dataset ID
+            dataset_name: Dataset Name
+            version: Pro Data Version
 
         Raises:
             rsexceptions.ReadStoreError: If request failed
-
+            rsexceptions.ReadStoreError: If ProData faiiled to delete
+            
         Returns:
-            List[Dict]: List of Pro Data
+            int: ProData ID
         """
 
         if not pro_data_id:
