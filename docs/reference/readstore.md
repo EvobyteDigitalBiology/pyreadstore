@@ -1,10 +1,14 @@
 ## readstore module
 
-::: readstore_cli.readstore
+::: pyreadstore.pyreadstore
 
 ## rsclient module
 
-::: readstore_cli.rsclient
+::: pyreadstore.rsclient
+
+## rsdataclasses module
+
+::: pyreadstore.rsdataclasses
 
 ## rsexceptions module
 
