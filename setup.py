@@ -4,14 +4,13 @@ from setuptools import setup, find_packages
 with open("pyreadstore/__version__.py") as version_file:
     version = version_file.read().split('__version__ = ')[-1].strip().strip("'")
     
-
 setup(
     name="pyreadstore",
     version=version,
     author="Jonathan Alles",
     author_email="Jonathan.Alles@evo-byte.com",
     description="PyReadStore is the Python client (SDK) for the ReadStore API",
-    long_description=open("README.md").read(),
+    long_description=open("docs/readme.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/EvobyteDigitalBiology/pyreadstore",
     packages=find_packages() + [],
@@ -25,7 +24,7 @@ setup(
     python_requires='>=3.10',
     install_requires=[
         'requests>=2.32.3',
-        'pydantic>=2.9',
+        'pydantic>=2.10',
         'pandas>=2.2'
     ],
     exclude_package_data={
