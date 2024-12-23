@@ -83,7 +83,7 @@ class Client():
             token = rs_config.get('credentials', 'token', fallback=None)
             endpoint_url = rs_config.get('general', 'endpoint_url', fallback=None)
             fastq_extensions = rs_config.get('general', 'fastq_extensions', fallback=None)
-            fastq_extensions = fastq_extensions.split(',')
+            #fastq_extensions = fastq_extensions.split(',')
             
         # Check if ENV variables are set
         # Overwrite config if found
@@ -228,6 +228,96 @@ class Client():
             fq_dataset = self._convert_json_to_pandas(fq_dataset, rsdataclasses.RSFqDatasetDetail)
         
         return fq_dataset
+    
+    def create(self,
+               name: str,
+                description: str = '',
+                project_ids: List[int] = [],
+                project_names: List[str] = [],
+                metadata: dict = {}):
+        """ Create an empty Dataset
+
+            Create an empty dataset with the specified name, description and metadata
+            and attach it to the specified projects.
+            
+            Args:
+                name: Set name
+                description: Set description. Defaults to ''.
+                project_ids: Set project_ids. Defaults to [].
+                project_names: Set project_names. Defaults to [].
+                metadata: Set metadata. Defaults to {}.
+            
+            Raises:
+                rsexceptions.ReadStoreError: Dataset with name {name} already exists
+                rsexceptions.ReadStoreError: Project with id {pid} not found
+                rsexceptions.ReadStoreError: Project with name {pname} not found
+                rsexceptions.ReadStoreError: Metadata not valid
+        """
+        
+        # Should return empty pd.Series if dataset not found
+        dataset_check = self.get(dataset_name = name)
+        
+        # Check if pd.Series is empty
+        if not dataset_check.empty:
+            raise rsexceptions.ReadStoreError(f'Dataset with name {name} already exists')
+        
+        # Check if project_ids and names exist
+        for pid in project_ids:
+            project_check = self.get_project(project_id = pid)
+            if project_check.empty:
+                raise rsexceptions.ReadStoreError(f'Project with id {pid} not found')
+        # Check if project names exist
+        for pname in project_names:
+            project_check = self.get_project(project_name = pname)
+            if project_check.empty:
+                raise rsexceptions.ReadStoreError(f'Project with name {pname} not found')
+        
+        self.rs_client.create_fastq_dataset(name=name,
+                                            description=description,
+                                            qc_passed=False,
+                                            paired_end=False,
+                                            index_read=False,
+                                            project_ids=project_ids,
+                                            project_names=project_names,
+                                            metadata=metadata,
+                                            fq_file_i1_id=None,
+                                            fq_file_i2_id=None,
+                                            fq_file_r1_id=None,
+                                            fq_file_r2_id=None)
+
+
+    def delete(self,
+               dataset_id: int | None = None,
+               dataset_name: str | None = None):
+        """Delete Dataset
+        
+        Delete dataset by ID or Name. Either must be provided.
+        
+        Args:
+            dataset_id: Delete by ID. Defaults to None.
+            dataset_name: Delete by Name. Defaults to None.
+            
+        Raises:
+            rsexceptions.ReadStoreError: Either dataset_id or dataset_name must be provided
+            rsexceptions.ReadStoreError: Dataset not found
+        """
+        
+        if (dataset_id is None) and (dataset_name is None):
+            raise rsexceptions.ReadStoreError('Either dataset_id or dataset_name must be provided')
+        
+        if dataset_id:
+            dataset = self.get(dataset_id = dataset_id)
+            if dataset.empty:
+                raise rsexceptions.ReadStoreError('Dataset not found')
+        if dataset_name:
+            dataset = self.get(dataset_name = dataset_name)
+            if dataset.empty:
+                raise rsexceptions.ReadStoreError('Dataset not found')
+            else:
+                dataset_id = int(dataset['id'])
+                
+        self.rs_client.delete_fastq_dataset(dataset_id)
+                
     
     def get_fastq(self,
                 dataset_id: int | None = None,
@@ -396,6 +486,70 @@ class Client():
             project = self._convert_json_to_pandas(project, rsdataclasses.RSProjectDetail)
         
         return project
+    
+    def create_project(self,
+                       name: str,
+                       description: str = '',
+                       metadata: dict = {},
+                       dataset_metadata_keys: List[str] = []):
+        """Create Project
+        
+        Create a new project
+        
+        Args:
+            name: Set Project name
+            description: Set Project description. Defaults to ''.
+            metadata: Set Project metadata. Defaults to {}.
+            dataset_metadata_keys: Set dataset metadata keys. Defaults to [].
+        
+        Raises:
+            rsexceptions.ReadStoreError: Project with name {name} already exists
+            rsexceptions.ReadStoreError: Invalid metadata or dataset_metadata_keys
+        """
+        
+        # Check if project with name already exists
+        project_check = self.get_project(project_name = name)
+        if not project_check.empty:
+            raise rsexceptions.ReadStoreError(f'Project with name {name} already exists')
+        
+        self.rs_client.create_project(name,
+                                      description,
+                                      metadata,
+                                      dataset_metadata_keys)
+
+
+    def delete_project(self,
+                       project_id: int | None = None,
+                       project_name: str | None = None):
+        """Delete Project
+
+        Delete Project by ID or Name. Either must be provided.
+        
+        Args:
+            project_id: Delete by ID. Defaults to None.
+            project_name: Delete by Name. Defaults to None.
+            
+        Raises:
+            rsexceptions.ReadStoreError: Either project_id or project_name must be provided
+            rsexceptions.ReadStoreError: Project not found
+        """
+        
+        if (project_id is None) and (project_name is None):
+            raise rsexceptions.ReadStoreError('Either project_id or project_name must be provided')
+        
+        if project_id:
+            project = self.get_project(project_id = project_id)
+            if project.empty:
+                raise rsexceptions.ReadStoreError('Project not found')
+        if project_name:
+            project = self.get_project(project_name = project_name)
+            if project.empty:
+                raise rsexceptions.ReadStoreError('Project not found')
+            else:
+                project_id = int(project['id'])
+                
+        self.rs_client.delete_project(project_id)
+        
     
     def download_project_attachment(self,
                                    attachment_name: str,
@@ -651,7 +805,7 @@ class Client():
                         version: int | None = None):
         """Delete ProData
 
-        Delete ProData by ID or Name + Dataset ID/Name
+        Delete ProData entry by ID or combination of Name + Dataset ID/Name.
         
         Args:
             pro_data_id: Delete by ID. Defaults to None.
