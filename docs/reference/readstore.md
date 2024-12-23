@@ -12,4 +12,4 @@
 
 ## rsexceptions module
 
-::: readstore_cli.rsexceptions
+::: pyreadstore.rsexceptions
