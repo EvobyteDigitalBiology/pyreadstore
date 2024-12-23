@@ -1,0 +1,107 @@
+name: Create Release on New Tg
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger the workflow on push events for tags like v1.0.0, v2.0.0, etc.
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      # Step 3: Create GitHub Release
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: pyreadstore ${{ github.ref_name }}
+          body: |
+            pyreadstore ${{ github.ref_name }}.
+
+            ReadStore is a platform for storing, managing, and integrating omics data. It accelerates analysis and offers an easy way to manage and share raw NGS datasets, processed data and metadata. With built-in project and metadata management, ReadStore structures your workflows, and its collaborative user interface enhances teamwork — so you can focus on generating insights.
+
+            The integrated web service allows you to retrieve data directly from ReadStore via the terminal Command-Line Interface (CLI) or through Python and R SDKs.
+            The ReadStore Basic version provides a local web server with simple user management. For organization-wide deployment, advanced user and group management, or cloud integration, please check out the ReadStore Advanced versions and contact us at [info@evo-byte.com](mailto:info@evo-byte.com).
+
+            **Description**
+            pyreadstore is a Python SDK that lets you easily connect to your ReadStore server and interact with the ReadStore API.
+            By importing the readstore package in Python, you can quickly retrieve data from a ReadStore server after connecting with the client.
+
+            **Getting Started**
+            Please read and follow the installation instructions described in the README.
+
+            **Documentation**
+            You can find the full documentation for the ReadStore ecosystem [here](https://evobytedigitalbiology.github.io/readstore/).
+
+            **Changelog**
+            [changelog.md](https://github.com/EvobyteDigitalBiology/pyreadstore/blob/main/docs/changelog.md)
+
+          draft: false
+          prerelease: false
+
+  release-build:
+    runs-on: ubuntu-latest
+    needs:
+      - create-release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build release distributions
+        run: |
+          # NOTE: put your own distribution build steps here.
+          python -m pip install build
+          python -m build
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dists
+          path: dist/
+
+  pypi-publish:
+    runs-on: ubuntu-latest
+    needs:
+      - release-build
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+
+    # Dedicated environments with protections for publishing are strongly recommended.
+    # For more information, see: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules
+    environment:
+      name: pypi
+      # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
+      url: https://pypi.org/project/pyreadstore/
+      #
+      # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
+      # ALTERNATIVE: exactly, uncomment the following line instead:
+      # url: https://pypi.org/project/YOURPROJECT/${{ github.event.release.name }}
+
+    steps:
+      - name: Retrieve release distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: release-dists
+          path: dist/  
+
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
