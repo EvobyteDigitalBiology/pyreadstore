@@ -19,6 +19,7 @@ Provides client for interacting with ReadStore API.
 
 Classes:
     - RSClient: Provides client for interacting with ReadStore API.
+
 """
 
 import requests
@@ -40,10 +41,8 @@ class RSClient:
             token: ReadStore user token
             endpoint: The endpoint URL for the ReadStore API
             output_format: The default output format for the client
-            auth: HTTP Basic Authentication Object
 
         Methods:
-            validate_charset: Validate string for ReadStore object naming conventions
             get_output_format: Get Output Format set for client
             upload_fastq: Upload Fastq Files
             get_fq_file: Get Fastq File
@@ -54,11 +53,6 @@ class RSClient:
             get_project: Get Project by id or name
             download_project_attachment: Download Project Attachments
             download_fq_dataset_attachment: Download Fastq Attach
-            upload_pro_data: Create ProDat entries
-            list_pro_data: List ProData
-            get_pro_data: Get ProData entry by ID or name
-            delete_pro_data: Delete ProData entry by ID or name
-            
     """
     
     REST_API_VERSION = "api_x_v1/"
@@ -253,13 +247,211 @@ class RSClient:
         """
 
         fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT)
-        
+
+
         res = requests.get(fq_file_endpoint + f'{fq_file_id}/',auth=self.auth)
 
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("get_fq_file Failed")
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"get_fq_file failed: {detail}")
         else:
             return res.json()[0]
+    
+    
+    def list_fq_files(self) -> List[Dict]:
+        """List Fastq Files
+
+        List Fastq files in ReadStore
+
+        Returns:
+            List of Fastq files
+        """
+
+        fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT)
+
+        res = requests.get(fq_file_endpoint, auth=self.auth)
+
+        if res.status_code not in [200, 204]:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"list_fq_files failed: {detail}")
+        else:
+            return res.json()
+                      
+                
+    def create_fq_file(self,
+                       name: str,
+                       read_type: str,
+                       qc_passed: bool,
+                       read_length: int,
+                       num_reads: int,
+                       size_mb: int,
+                       qc_phred_mean: float,
+                       qc_phred: dict,
+                       upload_path: str,
+                       md5_checksum: str,
+                       staging: bool,
+                       pipeline_version: str) -> dict:
+        
+        """Create Fastq File
+        
+        Create Fastq file in ReadStore
+        
+        Args:
+            name: Fastq file name
+            read_type: Read type (R1, R2, I1, I2)
+            qc_passed: QC Pass
+            read_length: Read length
+            num_reads: Number of reads
+            size_mb: Size in MB
+            qc_phred_mean: QC Phred Mean
+            qc_phred: QC Phred
+            upload_path: Upload Path
+            md5_checksum: MD5 Checksum
+            staging: Staging
+            pipeline_version: Pipeline Version
+            
+        Returns:    
+            dict: Fastq file data
+            
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        
+        fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT)
+        
+        # Define json for post request
+        json = {
+            "name": name,
+            "read_type": read_type,
+            "qc_passed": qc_passed,
+            "read_length": read_length,
+            "num_reads": num_reads,
+            "size_mb": size_mb,
+            "qc_phred_mean": qc_phred_mean,
+            "qc_phred": qc_phred,
+            "upload_path": upload_path,
+            "md5_checksum": md5_checksum,
+            "staging": staging,
+            "pipeline_version": pipeline_version
+        }
+        
+        res = requests.post(fq_file_endpoint, json=json, auth=self.auth)
+        
+        if res.status_code != 201:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"create_fq_file failed: {detail}")
+        else:
+            return res.json()
+        
+    
+    def update_fq_file(self,
+                       fq_file_id: int,
+                       name: str,
+                       read_type: str,
+                       qc_passed: bool,
+                       read_length: int,
+                       num_reads: int,
+                       size_mb: int,
+                       qc_phred_mean: float,
+                       qc_phred: dict,
+                       upload_path: str,
+                       md5_checksum: str,
+                       staging: bool,
+                       pipeline_version: str) -> dict:
+        
+        """Update Fastq File
+        
+        Update Fastq file in ReadStore
+        
+        Args:
+            fq_file_id: ID of Fastq file
+            name: Fastq file name
+            read_type: Read type (R1, R2, I1, I2)
+            qc_passed: QC Pass
+            read_length: Read length
+            num_reads: Number of reads
+            size_mb: Size in MB
+            qc_phred_mean: QC Phred Mean
+            qc_phred: QC Phred
+            upload_path: Upload Path
+            md5_checksum: MD5 Checksum
+            staging: Staging
+            pipeline_version: Pipeline Version
+            
+        Returns:    
+            dict: Fastq file data
+            
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        
+        fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT, f'{fq_file_id}/')
+        
+        # Define json for post request
+        json = {
+            "name": name,
+            "read_type": read_type,
+            "qc_passed": qc_passed,
+            "read_length": read_length,
+            "num_reads": num_reads,
+            "size_mb": size_mb,
+            "qc_phred_mean": qc_phred_mean,
+            "qc_phred": qc_phred,
+            "upload_path": upload_path,
+            "md5_checksum": md5_checksum,
+            "staging": staging,
+            "pipeline_version": pipeline_version
+        }
+        
+        res = requests.put(fq_file_endpoint, json=json, auth=self.auth)
+        
+        if res.status_code != 200:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"update_fq_file failed: {detail}")
+        else:
+            return res.json()
+    
+    
+    def delete_fq_file(self, fq_file_id: int):
+        """Delete Fastq File
+        
+        Delete Fastq file in ReadStore
+        
+        Args:
+            fq_file_id: ID of Fastq file
+            
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        
+        fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT, f'{fq_file_id}/')
+        
+        res = requests.delete(fq_file_endpoint, auth=self.auth)
+        
+        if not res.status_code in [200, 204]:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"delete_fq_file failed: {detail}")        
+                       
 
     def get_fq_file_upload_path(self, fq_file_id: int) -> str:
         """Get FASTQ file upload path
@@ -388,7 +580,170 @@ class RSClient:
             else:
                 return res.json()[0]
 
+    def create_fastq_dataset(self,
+                            name: str,
+                            description: str,
+                            qc_passed: bool,
+                            paired_end: bool,
+                            index_read: bool,
+                            project_ids: List[int],
+                            project_names: List[str],
+                            metadata: dict,
+                            fq_file_r1_id: int | None,
+                            fq_file_r2_id: int | None,
+                            fq_file_i1_id: int | None,
+                            fq_file_i2_id: int | None) -> dict:
+        
+        """Create Fastq Dataset 
+        
+        Create Fastq dataset in ReadStore
+        
+        Args:
+            name: Dataset name
+            description: Dataset description
+            qc_passed: QC Pass
+            paired_end: Paired End
+            index_read: Index Read
+            project_ids: List of project IDs
+            project_names: List of project names
+            metadata: Metadata
+            fq_file_r1_id: Fastq file R1 ID
+            fq_file_r2_id: Fastq file R2 ID
+            fq_file_i1_id: Fastq file I1 ID
+            fq_file_i2_id: Fastq file I2 ID
+            
+        Returns:
+            dict: Created Fastq dataset
+            
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        
+        fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_DATASET_ENDPOINT)
+        
+        # Define json for post request
+        json = {
+            "name": name,
+            "description": description,
+            "qc_passed": qc_passed,
+            "paired_end": paired_end,
+            "index_read": index_read,
+            "project_ids": project_ids,
+            "project_names": project_names,
+            "metadata": metadata,
+            "fq_file_r1": fq_file_r1_id,
+            "fq_file_r2": fq_file_r2_id,
+            "fq_file_i1": fq_file_i1_id,
+            "fq_file_i2": fq_file_i2_id
+        }
 
+        res = requests.post(fq_dataset_endpoint, json=json, auth=self.auth)
+
+        if res.status_code != 201:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"create_fastq_dataset failed: {detail}")
+        else:
+            return res.json()
+            
+    def update_fastq_dataset(self,
+                             dataset_id: int,
+                             name: str,
+                             description: str,
+                             qc_passed: bool,
+                             paired_end: bool,
+                             index_read: bool,
+                             project_ids: List[int],
+                             project_names: List[str],
+                             metadata: dict,
+                             fq_file_r1_id: int | None,
+                             fq_file_r2_id: int | None,
+                             fq_file_i1_id: int | None,
+                             fq_file_i2_id: int | None) -> dict:
+        """Update Fastq Dataset
+
+        Update Fastq dataset in ReadStore
+
+        Args:
+            dataset_id: ID of the dataset to update
+            name: Dataset name
+            description: Dataset description
+            qc_passed: QC Pass
+            paired_end: Paired End
+            index_read: Index Read
+            project_ids: List of project IDs
+            project_names: List of project names
+            metadata: Metadata
+            fq_file_r1_id: Fastq file R1 ID
+            fq_file_r2_id: Fastq file R2 ID
+            fq_file_i1_id: Fastq file I1 ID
+            fq_file_i2_id: Fastq file I2 ID
+
+        Returns:
+            dict: Updated Fastq dataset
+
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+
+        fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_DATASET_ENDPOINT, f'{dataset_id}/')
+
+        # Define json for put request
+        json = {
+            "name": name,
+            "description": description,
+            "qc_passed": qc_passed,
+            "paired_end": paired_end,
+            "index_read": index_read,
+            "project_ids": project_ids,
+            "project_names": project_names,
+            "metadata": metadata,
+            "fq_file_r1": fq_file_r1_id,
+            "fq_file_r2": fq_file_r2_id,
+            "fq_file_i1": fq_file_i1_id,
+            "fq_file_i2": fq_file_i2_id
+        }
+
+        res = requests.put(fq_dataset_endpoint, json=json, auth=self.auth)
+
+        if res.status_code != 200:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"update_fastq_dataset failed: {detail}")
+        else:
+            return res.json()
+        
+    def delete_fastq_dataset(self, dataset_id: int):
+        """Delete Fastq Dataset
+
+        Delete Fastq dataset in ReadStore
+
+        Args:
+            dataset_id: ID of Fastq dataset
+
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+
+        fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_DATASET_ENDPOINT, f'{dataset_id}/')
+
+        res = requests.delete(fq_dataset_endpoint, auth=self.auth)
+
+        if not res.status_code in [200,204]:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"delete_fastq_dataset failed: {detail}")
+        
+        
     def list_projects(self, role: str | None = None) -> List[Dict]:
         """List Projects
 
@@ -474,6 +829,123 @@ class RSClient:
             else:
                 return res.json()[0]
 
+    def create_project(self,
+                       name: str,
+                       description: str,
+                       metadata: dict,
+                       dataset_metadata_keys: List[str]) -> dict:
+        """Create Project
+
+        Create a new project in ReadStore
+
+        Args:
+            name: Project name
+            description: Project description
+            metadata: Project metadata
+            dataset_metadata_keys: Dataset metadata keys
+
+        Returns:
+            dict: Created project data
+
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        project_endpoint = os.path.join(self.endpoint, self.PROJECT_ENDPOINT)
+
+        dataset_metadata_keys = {key: "" for key in dataset_metadata_keys}
+        
+        json = {
+            "name": name,
+            "description": description,
+            "metadata": metadata,
+            "dataset_metadata_keys": dataset_metadata_keys
+        }
+    
+        res = requests.post(project_endpoint, json=json, auth=self.auth)
+
+        if res.status_code != 201:
+            try:
+                detail = res.json()
+            except: 
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"create_project failed: {detail}")
+        else:
+            return res.json()
+
+
+    def update_project(self,
+                       project_id: int,
+                       name: str,
+                       description: str,
+                       metadata: dict,
+                       dataset_metadata_keys: List[str]) -> dict:        
+        """Update Project
+
+        Update an existing project in ReadStore
+
+        Args:
+            project_id: ID of the project to update
+            name: Project name
+            description: Project description
+            metadata: Project metadata
+            dataset_metadata_keys: Dataset metadata keys
+
+        Returns:
+            dict: Updated project data
+
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        project_endpoint = os.path.join(self.endpoint, self.PROJECT_ENDPOINT, f'{project_id}/')
+
+        dataset_metadata_keys = {key: "" for key in dataset_metadata_keys}
+        
+        json = {
+            "name": name,
+            "description": description,
+            "metadata": metadata,
+            "dataset_metadata_keys": dataset_metadata_keys
+        }
+
+        res = requests.put(project_endpoint, json=json, auth=self.auth)
+
+        if res.status_code != 200:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"update_project failed: {detail}")
+        else:
+            return res.json()
+
+
+    def delete_project(self, project_id: int):
+        """Delete Project
+
+        Delete a project in ReadStore
+
+        Args:
+            project_id: ID of the project to delete
+
+        Raises:
+            rsexceptions.ReadStoreError: If request failed
+        """
+        
+        project_endpoint = os.path.join(self.endpoint, self.PROJECT_ENDPOINT, f'{project_id}/')
+
+        res = requests.delete(project_endpoint, auth=self.auth)
+
+        if not res.status_code in [200,204]:
+            try:
+                detail = res.json()
+            except:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"delete_project failed: {detail}")
+    
+    
     def download_project_attachment(
         self,
         attachment_name: str,
@@ -596,22 +1068,15 @@ class RSClient:
                         description: str = "") -> None:
         """Upload Processed Data
 
-        Upload ProData files to ReadStore.
-        
+        Upload Pro Data to ReadStore
+
         Args:
-            name: Name of ProData
-            pro_data_path: Path to ProData file
-            data_type: Data Type of ProData file
-            dataset_id: Dataset ID to attach ProData
-            dataset_name: Dataset Name to attach ProData
-            metadata: Metadata for ProData entry
-            description: Description of ProData entry
-            
+            pro_data: Pro Data in JSON format
+
         Raises:
-            rsexceptions.ReadStoreError: If file is not found
-            rsexceptions.ReadStoreError: Upload ProData
+            rsexceptions.ReadStoreError: If upload request failed
         """
-        
+
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
         
         # Run parallel uploads of fastq files
@@ -631,12 +1096,12 @@ class RSClient:
             "metadata": metadata,
             "description" : description,
         }
-
+        
         if dataset_id:
             json['dataset_id'] = dataset_id
         if dataset_name:
-            json['dataset_name'] = dataset_name
-        
+            json['dataset_name'] = dataset_name        
+
         res = requests.post(pro_data_endpoint, json=json, auth=self.auth)
         
         if res.status_code == 403:
@@ -644,7 +1109,7 @@ class RSClient:
         elif res.status_code not in [201, 204]:
             raise rsexceptions.ReadStoreError("upload_pro_data failed")
         
-        
+
     def list_pro_data(self,
                       project_id: int | None = None,
                       project_name: str | None = None,
@@ -655,23 +1120,16 @@ class RSClient:
                       include_archived: bool = False) -> List[Dict]:
         """List Processed Data
 
-        List Pro Data and filter by Project, Dataset, ProData Name, Data Type
-        Include archived ProData if include_archived is True, else only return valid ProData
-        
+        List Pro Data for Dataset
+
         Args:
-            project_id: Filter by Project ID 
-            project_name: Filter by Project Name
-            dataset_id: Filter by Dataset ID
-            dataset_name: Filter by Dataset Name
-            name: Filter by ProData Name
-            data_type: Filter by Data Type
-            include_archived: Include archived ProData
-            
+            dataset_id: Dataset ID
+
         Raises:
             rsexceptions.ReadStoreError: If request failed
-            
+
         Returns:
-            List[Dict]: List of Pro Data as json
+            List[Dict]: List of Pro Data
         """
 
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
@@ -703,21 +1161,16 @@ class RSClient:
                     version: int | None = None,
                     dataset_id: int | None = None,
                     dataset_name: str | None = None) -> List[Dict]:   
+        
         """List Processed Data
 
-        Get Pro Data entry
+        List Pro Data for Dataset
 
         Args:
-            pro_data_id: Pro Data ID
-            name: Pro Data Name
-            version: Pro Data Version
             dataset_id: Dataset ID
-            dataset_name: Dataset Name
-            version: Pro Data Version
-            
+
         Raises:
             rsexceptions.ReadStoreError: If request failed
-            rsexceptions.ReadStoreError: If multiple ProData found with same name
 
         Returns:
             List[Dict]: List of Pro Data
@@ -725,14 +1178,15 @@ class RSClient:
 
         if not pro_data_id:
             assert name and (dataset_id or dataset_name), "name and dataset_id or dataset_name required"
-
+            
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
-
+        
         if not version:
             valid = 'true'
         else:
             valid = 'false'
-
+        
+    
         # Define json for post request
         json = {
             'dataset_id': dataset_id,
@@ -742,7 +1196,7 @@ class RSClient:
             'valid': valid,
             'detail': 'true'
         }
-
+                
         if pro_data_id:
             res = requests.get(pro_data_endpoint + f'{pro_data_id}/', auth=self.auth)
         else:
@@ -763,30 +1217,25 @@ class RSClient:
             else:
                 return res.json()[0]
             
-            
     def delete_pro_data(self,
                         pro_data_id: int | None = None,
                         name: str | None = None,
                         dataset_id: int | None = None,
                         dataset_name: str | None = None,
-                        version: int | None = None) -> int:   
+                        version: int | None = None) -> List[Dict]:   
+            
         """Delete Processed Data
 
-        Delete Pro Data Entry by ID or Name
+        Delete Pro Data for Dataset
 
         Args:
-            pro_data_id: Pro Data ID
-            name: Pro Data Name
             dataset_id: Dataset ID
-            dataset_name: Dataset Name
-            version: Pro Data Version
 
         Raises:
             rsexceptions.ReadStoreError: If request failed
-            rsexceptions.ReadStoreError: If ProData faiiled to delete
-            
+
         Returns:
-            int: ProData ID
+            List[Dict]: List of Pro Data
         """
 
         if not pro_data_id:
