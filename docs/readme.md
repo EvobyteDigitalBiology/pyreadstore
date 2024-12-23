@@ -1,3 +1,8 @@
+![GitHub Release](https://img.shields.io/github/v/release/EvobyteDigitalBiology/pyreadstore)
+![PyPI - Version](https://img.shields.io/pypi/v/pyreadstore)
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+
+
 # PyReadStore SDK
 
 This README describes PyReadStore, the Python client (SDK) for the ReadStore API. 
