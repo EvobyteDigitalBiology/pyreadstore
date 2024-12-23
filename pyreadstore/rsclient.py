@@ -29,6 +29,7 @@ import os
 import base64
 from typing import List, Dict
 import string
+from json import JSONDecodeError
 
 from pyreadstore import rsexceptions
 
@@ -64,6 +65,39 @@ class RSClient:
     PROJECT_ENDPOINT = "project/"
     PROJECT_ATTACHMENT_ENDPOINT = "project_attachment/"
     PRO_DATA_ENDPOINT = "pro_data/"
+    
+    # Reserved Metadata Keys not allowed in metadata to 
+    # avoid conflicts with ReadStore UI
+    METADATA_RESERVED_KEYS = ['id',
+                            'name',
+                            'project',
+                            'project_ids',
+                            'project_names',
+                            'owner_group_name',
+                            'qc_passed',
+                            'paired_end',
+                            'index_read',
+                            'created',
+                            'description',
+                            'owner_username',
+                            'fq_file_r1',
+                            'fq_file_r2',
+                            'fq_file_i1',
+                            'fq_file_i2',
+                            'id_project',
+                            'name_project',
+                            'name_og',
+                            'archived',
+                            'collaborators',
+                            'dataset_metadata_keys',
+                            'data_type',
+                            'version',
+                            'valid_to',
+                            'upload_path',
+                            'owner_username',
+                            'fq_dataset',
+                            'id_fq_dataset',
+                            'name_fq_dataset']
     
     def __init__(
         self, username: str, token: str, endpoint_url: str, output_format: str
@@ -162,6 +196,27 @@ class RSClient:
         
         return set(query_str) <= allowed
     
+    def validate_metadata(self, metadata: dict) -> None:
+        """
+        Validate metadata dict
+
+        Ensure keys are non-empty, valid charset and not reserved
+    
+        Args:
+            metadata (dict): Metadata to validate
+
+        Raises:
+            rsexceptions.ReadStoreError: If key is invalid
+        """
+        
+        for key, value in metadata.items():
+            if key == '':
+                raise rsexceptions.ReadStoreError("Empty Key")
+            if not self.validate_charset(key):
+                raise rsexceptions.ReadStoreError("Invalid character in key. Must be alphanumeric or _-.@")
+            if key in self.METADATA_RESERVED_KEYS:
+                raise rsexceptions.ReadStoreError(f"Reserved Keyword not allowed in metadata: {key}")
+            
     
     def get_output_format(self) -> str:
         """
@@ -233,7 +288,6 @@ class RSClient:
                 f"Upload URL Request Failed: {res_message}"
             )
 
-    
     def get_fq_file(self, fq_file_id: int) -> Dict:
         """Get Fastq File
 
@@ -248,13 +302,12 @@ class RSClient:
 
         fq_file_endpoint = os.path.join(self.endpoint, self.FQ_FILE_ENDPOINT)
 
-
         res = requests.get(fq_file_endpoint + f'{fq_file_id}/',auth=self.auth)
 
         if res.status_code not in [200, 204]:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"get_fq_file failed: {detail}")
@@ -278,7 +331,7 @@ class RSClient:
         if res.status_code not in [200, 204]:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"list_fq_files failed: {detail}")
@@ -299,7 +352,6 @@ class RSClient:
                        md5_checksum: str,
                        staging: bool,
                        pipeline_version: str) -> dict:
-        
         """Create Fastq File
         
         Create Fastq file in ReadStore
@@ -348,7 +400,7 @@ class RSClient:
         if res.status_code != 201:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"create_fq_file failed: {detail}")
@@ -420,7 +472,7 @@ class RSClient:
         if res.status_code != 200:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"update_fq_file failed: {detail}")
@@ -447,7 +499,7 @@ class RSClient:
         if not res.status_code in [200, 204]:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"delete_fq_file failed: {detail}")        
@@ -476,6 +528,7 @@ class RSClient:
         upload_path = fq_file.get("upload_path")
 
         return upload_path
+
 
     def list_fastq_datasets(
         self,
@@ -521,7 +574,13 @@ class RSClient:
         res = requests.get(fq_dataset_endpoint, params=json, auth=self.auth)
 
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("list_fastq_datasets Failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"list_fastq_datasets failed: {detail}")
         else:
             return res.json()
 
@@ -565,7 +624,13 @@ class RSClient:
 
         # Remove entries not requested
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("get_fastq_dataset Failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"get_fastq_dataset failed: {detail}")
         else:
             # If no dataset found, return empty dict
             if len(res.json()) == 0:
@@ -593,10 +658,12 @@ class RSClient:
                             fq_file_r2_id: int | None,
                             fq_file_i1_id: int | None,
                             fq_file_i2_id: int | None) -> dict:
-        
         """Create Fastq Dataset 
         
         Create Fastq dataset in ReadStore
+        Name must be non-empty and alphanumeric or _-.@
+        
+        Metadata keys must be non-empty, valid charset and not reserved
         
         Args:
             name: Dataset name
@@ -621,6 +688,13 @@ class RSClient:
         
         fq_dataset_endpoint = os.path.join(self.endpoint, self.FQ_DATASET_ENDPOINT)
         
+        if name == '':
+            raise rsexceptions.ReadStoreError("Empty Name")
+        if not self.validate_charset(name):
+            raise rsexceptions.ReadStoreError("Invalid character in name. Must be alphanumeric or _-.@")
+        
+        self.validate_metadata(metadata)
+        
         # Define json for post request
         json = {
             "name": name,
@@ -642,7 +716,7 @@ class RSClient:
         if res.status_code != 201:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"create_fastq_dataset failed: {detail}")
@@ -712,14 +786,14 @@ class RSClient:
         if res.status_code != 200:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"update_fastq_dataset failed: {detail}")
         else:
             return res.json()
         
-    def delete_fastq_dataset(self, dataset_id: int):
+    def delete_fastq_dataset(self, dataset_id: int) -> None:
         """Delete Fastq Dataset
 
         Delete Fastq dataset in ReadStore
@@ -738,7 +812,7 @@ class RSClient:
         if not res.status_code in [200,204]:
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"delete_fastq_dataset failed: {detail}")
@@ -773,7 +847,13 @@ class RSClient:
         res = requests.get(project_endpoint, params=json, auth=self.auth)
 
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("list_projects Failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"list_projects failed: {detail}")
         else:
             return res.json()
 
@@ -815,7 +895,13 @@ class RSClient:
         res = requests.get(project_endpoint, params=json, auth=self.auth)
 
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("get_project Failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"get_project failed: {detail}")
         else:
             if len(res.json()) == 0:
                 return {}
@@ -837,6 +923,12 @@ class RSClient:
         """Create Project
 
         Create a new project in ReadStore
+        
+        Name must be non-empty and alphanumeric or _-.@
+        
+        Metadata dict keys must be non-empty, valid charset and not reserved
+
+        dataset_metadata_keys must be non-empty, valid charset and not reserved
 
         Args:
             name: Project name
@@ -854,6 +946,15 @@ class RSClient:
 
         dataset_metadata_keys = {key: "" for key in dataset_metadata_keys}
         
+        if name == '':
+            raise rsexceptions.ReadStoreError("Empty Name")
+        if not self.validate_charset(name):
+            raise rsexceptions.ReadStoreError("Invalid character in name. Must be alphanumeric or _-.@")
+        
+        self.validate_metadata(metadata)
+        
+        self.validate_metadata(dataset_metadata_keys)
+        
         json = {
             "name": name,
             "description": description,
@@ -864,9 +965,10 @@ class RSClient:
         res = requests.post(project_endpoint, json=json, auth=self.auth)
 
         if res.status_code != 201:
+            
             try:
                 detail = res.json()
-            except: 
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"create_project failed: {detail}")
@@ -911,9 +1013,10 @@ class RSClient:
         res = requests.put(project_endpoint, json=json, auth=self.auth)
 
         if res.status_code != 200:
+            
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"update_project failed: {detail}")
@@ -921,7 +1024,7 @@ class RSClient:
             return res.json()
 
 
-    def delete_project(self, project_id: int):
+    def delete_project(self, project_id: int) -> None:
         """Delete Project
 
         Delete a project in ReadStore
@@ -938,9 +1041,10 @@ class RSClient:
         res = requests.delete(project_endpoint, auth=self.auth)
 
         if not res.status_code in [200,204]:
+            
             try:
                 detail = res.json()
-            except:
+            except JSONDecodeError:
                 detail = "No Message"
             
             raise rsexceptions.ReadStoreError(f"delete_project failed: {detail}")
@@ -989,7 +1093,12 @@ class RSClient:
         res = requests.get(project_attachment_endpoint, params=json, auth=self.auth)
 
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("download_project_attachment failed")
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"download_project_attachment failed: {detail}")
         elif len(res.json()) == 0:
             raise rsexceptions.ReadStoreError("Attachment Not Found")
         elif len(res.json()) > 1:
@@ -1043,8 +1152,13 @@ class RSClient:
 
         res = requests.get(fq_dataset_endpoint, params=json, auth=self.auth)
 
-        if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("download_fq_dataset_attachment failed")
+        if res.status_code not in [200, 204]:            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"download_fq_dataset_attachment failed {detail}")
         elif len(res.json()) == 0:
             raise rsexceptions.ReadStoreError("Attachment Not Found")
         elif len(res.json()) > 1:
@@ -1079,6 +1193,17 @@ class RSClient:
 
         pro_data_endpoint = os.path.join(self.endpoint, self.PRO_DATA_ENDPOINT)
         
+        if name == '':
+            raise rsexceptions.ReadStoreError("Empty Name")
+        if data_type == '':
+            raise rsexceptions.ReadStoreError("Empty Data Type")
+        if not self.validate_charset(name):
+            raise rsexceptions.ReadStoreError("Invalid character in name. Must be alphanumeric or _-.@")
+        if not self.validate_charset(data_type):
+            raise rsexceptions.ReadStoreError("Invalid character in data_type. Must be alphanumeric or _-.@")
+
+        self.validate_metadata(metadata)
+        
         # Run parallel uploads of fastq files
         pro_data_path = os.path.abspath(pro_data_path)
         
@@ -1107,7 +1232,12 @@ class RSClient:
         if res.status_code == 403:
             raise rsexceptions.ReadStoreError(f"Upload ProData Failed: {res.json().get('detail')}")
         elif res.status_code not in [201, 204]:
-            raise rsexceptions.ReadStoreError("upload_pro_data failed")
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"upload_pro_data failed: {detail}")
         
 
     def list_pro_data(self,
@@ -1120,10 +1250,16 @@ class RSClient:
                       include_archived: bool = False) -> List[Dict]:
         """List Processed Data
 
-        List Pro Data for Dataset
+        List Pro Data. Subset by arguments.
 
         Args:
+            project_id: Project ID
+            project_name: Project Name
             dataset_id: Dataset ID
+            dataset_name: Dataset Name
+            name: Pro Data Name
+            data_type: Data Type
+            include_archived: Include Archived Pro Data
 
         Raises:
             rsexceptions.ReadStoreError: If request failed
@@ -1150,7 +1286,13 @@ class RSClient:
         res = requests.get(pro_data_endpoint, params=json, auth=self.auth)
         
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("list_pro_data failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"list_pro_data failed {detail}")
         else:
             return res.json()
         
@@ -1160,20 +1302,25 @@ class RSClient:
                     name: str | None = None,
                     version: int | None = None,
                     dataset_id: int | None = None,
-                    dataset_name: str | None = None) -> List[Dict]:   
+                    dataset_name: str | None = None) -> Dict:   
+        """Get Processed Data
+
+        Get Pro Data for Dataset
         
-        """List Processed Data
-
-        List Pro Data for Dataset
-
+        Provide pro_data_id or name plus dataset_id or dataset_name to query
+        
         Args:
+            pro_data_id: Dataset ID
+            name: Pro Data Name
+            version: Pro Data Version
             dataset_id: Dataset ID
+            dataset_name: Dataset Name
 
         Raises:
             rsexceptions.ReadStoreError: If request failed
 
         Returns:
-            List[Dict]: List of Pro Data
+            Dict: Pro Data object
         """
 
         if not pro_data_id:
@@ -1186,7 +1333,6 @@ class RSClient:
         else:
             valid = 'false'
         
-    
         # Define json for post request
         json = {
             'dataset_id': dataset_id,
@@ -1203,7 +1349,13 @@ class RSClient:
             res = requests.get(pro_data_endpoint, params=json, auth=self.auth)
         
         if res.status_code not in [200, 204]:
-            raise rsexceptions.ReadStoreError("list_pro_data failed")
+            
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            
+            raise rsexceptions.ReadStoreError(f"list_pro_data failed {detail}")
         else:
             if len(res.json()) == 0:
                 return {}
@@ -1217,25 +1369,31 @@ class RSClient:
             else:
                 return res.json()[0]
             
+            
     def delete_pro_data(self,
                         pro_data_id: int | None = None,
                         name: str | None = None,
                         dataset_id: int | None = None,
                         dataset_name: str | None = None,
-                        version: int | None = None) -> List[Dict]:   
-            
+                        version: int | None = None) -> int:   
         """Delete Processed Data
 
         Delete Pro Data for Dataset
+        
+        Provide pro_data_id or name plus dataset_id or dataset_name to query
 
         Args:
+            pro_data_id: Dataset ID
+            name: Pro Data Name
             dataset_id: Dataset ID
+            dataset_name: Dataset Name
+            version: Pro Data Version
 
         Raises:
             rsexceptions.ReadStoreError: If request failed
 
         Returns:
-            List[Dict]: List of Pro Data
+            int: Pro Data ID
         """
 
         if not pro_data_id:
@@ -1267,4 +1425,8 @@ class RSClient:
         elif res.status_code in [200, 204]:
             return res.json().get('id')
         else:
-            raise rsexceptions.ReadStoreError("delete_pro_data failed")
+            try:
+                detail = res.json()
+            except JSONDecodeError:
+                detail = "No Message"
+            raise rsexceptions.ReadStoreError(f"delete_pro_data failed {detail}")
