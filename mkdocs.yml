@@ -1,0 +1,45 @@
+# mkdocs.yml
+
+site_name: pyreadstore Docs
+
+theme:
+  name: "material"
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annnotation
+    - content.copy
+  language: en
+  logo: assets/BannerLarge.png
+  favicon: img/favicon.ico
+
+plugins:
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: true
+  - search:
+      lang: en
+
+nav:
+  - Home: index.md
+  - Readme: readme.md
+  - Changelog: changelog.md
+  - pyreadstore package: reference/readstore.md
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/EvobyteDigitalBiology/pyreadstore
+  homepage: https://evo-byte.com/readstore
+
+copyright: Copyright &copy; 2024 EVOBYTE Digital Biology Dr. Jonathan Alles
