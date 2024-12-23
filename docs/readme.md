@@ -2,7 +2,9 @@
 
 This README describes PyReadStore, the Python client (SDK) for the ReadStore API. 
 
-PyReadStore can be used to access projects, datasets, metadata and attachment files in the ReadStore Database from  Python code. 
+The full **ReadStore Basic documentation** is available [here](https://evobytedigitalbiology.github.io/readstore/) 
+
+PyReadStore can be used to access Projects, Datasets, ProData as well as metadata and attachment files in the ReadStore Database from Python code. 
 The package enables you to automate your bioinformatics pipelines, Python scripts and notebooks.
 
 Check the [ReadStore Github repository](https://github.com/EvobyteDigitalBiology/readstore) for more information on how to get started with ReadStore and setting up your server.
@@ -21,6 +23,7 @@ Happy analysis :)
 ## Table of Contents
 - [Description](#description)
 - [Installation](#installation)
+- [ReadStore API](#api)
 - [Usage](#usage)
     1. [Quickstart](#quickstart)
     2. [Client Config](#client_config)
@@ -95,12 +98,52 @@ You can perform the install in a conda or venv virtual environment to simplify p
 A local install is also possible
 
 `pip3 install --user pyreadstore`
-
-Validate the install with a module import
+ 
 
 ```python 
 import pyreadstore
 ```
+
+## ReadStore API<a id="api"></a>
+
+The **ReadStore Basic** server provides a RESTful API for accessing resources via HTTP requests.  
+This API extends the functionalities of the ReadStore CLI as well as the Python and R SDKs.
+
+### API Endpoint
+By default, the API is accessible at:  
+`http://127.0.0.1:8000/api_x_v1/`
+
+### Authentication
+Users must authenticate using their username and token via the Basic Authentication scheme.
+
+### Example Usage
+Below is an example demonstrating how to use the ReadStore CLI to retrieve an overview of Projects by sending an HTTP `GET` request to the `project/` endpoint.  
+In this example, the username is `testuser`, and the token is `0dM9qSU0Q5PLVgDrZRftzw`. You can find your token in the ReadStore settings.
+
+```bash
+curl -X GET -u testuser:0dM9qSU0Q5PLVgDrZRftzw http://localhost:8000/api_x_v1/project/
+```
+
+#### Example Reponse
+
+A successful HTTP response returns a JSON-formatted string describing the project(s) in the ReadStore database. Example response:
+
+```
+[{
+  "id": 4,
+  "name": "TestProject99",
+  "metadata": {
+    "key1": "value1",
+    "key2": "value2"
+  },
+  "attachments": []
+}]
+```
+
+### Documentation
+
+Comprehensive [API documentation](https://evobytedigitalbiology.github.io/readstore/rest_api/) is available in the ReadStore Basic Docs.
+
 
 ## Usage
 
@@ -229,6 +272,32 @@ rs_client.get_fastq(dataset_id: int| None = None,    # Get fastq data for datase
                   ) -> pd.DataFrame | List[dict]
 ```
 
+### Edit Datasets
+
+**NOTE** Editing methods as create or delete require `Staging Permission` authorization.
+
+When creating datasets, the `name` argument and `metadata` dictionary are checked for consistency: Each must not be empty, contain only alphanumeric characters (plus _-.@). Metadata keys must not contain reserved keywords (listed below).
+
+```python 
+# Create an empty Dataset, without FASTQ files attached
+
+# Name must be unique in Database
+# Optionally define Project IDs and/or Project names to attach Dataset to.  
+
+rs_client.create(name: str,                       # Set name
+                 description: str = '',           # Set description. Defaults to ''.
+                 project_ids: List[int] = [],     # Set project_ids. Defaults to [].
+                 project_names: List[str] = [],   # Set project_names. Defaults to [].
+                 metadata: dict = {})              # Set metadata. Defaults to {}.
+                 
+
+# Delete Dataset (and attached FASTQ files)
+# Either dataset_id or dataset_name argument must be provided
+
+rs_client.delete(dataset_id: int | None = None,   # Delete by ID. Defaults to None.
+                 dataset_name: str | None = None)  # Delete by Name. Defaults to None.
+```
+
 
 ### Access Projects<a id="access_projects"></a>
 
@@ -245,6 +314,31 @@ rs_client.get_project(project_id: int| None = None,     # Get dataset with id `p
                       project_name: str | None = None,  # Filter datasets with name `project_name`
                       return_type: str | None = None    # Return pd.Series or json(dict)
                       ) -> pd.Series | dict
+```
+
+### Edit Projects
+
+**NOTE** Editing methods as create or delete require `Staging Permission` authorization. 
+
+When creating datasets, the `name` argument and `metadata` dictionary are checked for consistency: Each must not be empty, contain only alphanumeric characters (plus _-.@). Metadata keys must not contain reserved keywords (listed below).
+
+```python 
+# Create ReadStore Project
+
+# name must be unique in Database
+# dataset_metadata_keys can be attached and will be set as default metadata keys for attached datasets
+
+rs_client.create_project(name: str,                       # Set Project name
+                         description: str = '',           # Set Project description. Defaults to ''.
+                         metadata: dict = {},             # Set Project metadata. Defaults to {}.
+                         dataset_metadata_keys: List[str] = [])  # Set dataset metadata keys. Defaults to [].
+
+# Delete ReadStore Project
+
+# Either project_id or project_name argument must be provided
+
+rs_client.delete_project(project_id: int | None = None,    # Delete by ID. Defaults to None.
+                         project_name: str | None = None)  # Delete by Name. Defaults to None.
 ```
 
 ### Access **Pro**cessed **Data**<a id="access_prodata"></a>
@@ -321,6 +415,18 @@ Upload FASTQ files to ReadStore server. The methods checks if the FASTQ files ex
 # Upload FASTQ files to ReadStore 
 
 rs_client.upload_fastq(fastq : List[str] | str)  # Path of FASTQ files to upload
+```
+
+
+#### Reserved keywords
+
+The following keywords must not be used as metadata keys
+
+```
+'id','name','project','project_ids','project_names','owner_group_name','qc_passed','paired_end',
+'index_read','created','description','owner_username','fq_file_r1','fq_file_r2','fq_file_i1',
+'fq_file_i2','id_project','name_project','name_og','archived','collaborators','dataset_metadata_keys',
+'data_type','version','valid_to','upload_path','owner_username','fq_dataset','id_fq_dataset','name_fq_dataset'
 ```
 
 ## Contributing
