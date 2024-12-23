@@ -1,3 +1,5 @@
-include README.md LICENSE requirements.txt
+include LICENSE requirements.txt
+include docs/readme.md
+include docs/changelog.md
 
 global-exclude *test*.py
