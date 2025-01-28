@@ -191,8 +191,26 @@ class Client():
             fq_datasets = self._convert_json_to_pandas(fq_datasets, rsdataclasses.RSFqDataset)
         
         return fq_datasets
-    
-    # TODO: Function to explode metadata
+   
+    def list_metadata(self,
+                    project_id: int | None = None,
+                    project_name: str | None = None) -> pd.DataFrame: 
+        """List Metadata
+
+            Args:
+                project_id: Filter by project_id. Defaults to None.
+                project_name: Filter by project_name. Defaults to None.        
+        """
+        
+        fq_datasets = self.list(project_id = project_id,
+                                project_name = project_name,
+                                return_type='pandas')
+
+        if fq_datasets.empty:
+            return pd.DataFrame()
+        else:
+            metadata = fq_datasets['metadata'].apply(pd.Series)
+            return metadata
     
     def get(self,
             dataset_id: int| None = None,
@@ -203,7 +221,8 @@ class Client():
         Args:
             dataset_id: Select by ID. Defaults to None.
             dataset_name: Select by Name. Defaults to None.
-            return_type: Specify return type. Default use return type from object.
+            return_type: Specify return type. Default use return type from Client instance.
+                Options: 'pandas', 'json'
 
         Raises:
             rsexceptions.ReadStoreError: Either dataset_id or dataset_name must be provided
@@ -230,7 +249,7 @@ class Client():
         return fq_dataset
     
     def create(self,
-               name: str,
+               dataset_name: str,
                 description: str = '',
                 project_ids: List[int] = [],
                 project_names: List[str] = [],
@@ -255,11 +274,11 @@ class Client():
         """
         
         # Should return empty pd.Series if dataset not found
-        dataset_check = self.get(dataset_name = name)
+        dataset_check = self.get(dataset_name = dataset_name)
         
         # Check if pd.Series is empty
         if not dataset_check.empty:
-            raise rsexceptions.ReadStoreError(f'Dataset with name {name} already exists')
+            raise rsexceptions.ReadStoreError(f'Dataset with name {dataset_name} already exists')
         
         # Check if project_ids and names exist
         for pid in project_ids:
@@ -272,7 +291,7 @@ class Client():
             if project_check.empty:
                 raise rsexceptions.ReadStoreError(f'Project with name {pname} not found')
         
-        self.rs_client.create_fastq_dataset(name=name,
+        self.rs_client.create_fastq_dataset(name=dataset_name,
                                             description=description,
                                             qc_passed=False,
                                             paired_end=False,
@@ -285,7 +304,56 @@ class Client():
                                             fq_file_r1_id=None,
                                             fq_file_r2_id=None)
 
+    def update(self,
+                dataset_id: int,
+                dataset_name: str | None = None,
+                description: str | None = None,
+                project_ids: List[int] | None = None,
+                project_names: List[str] | None = None,
+                metadata: dict | None = None):
+        
+        # Check if project_ids and names exist
+        if project_ids:
+            for pid in project_ids:
+                project_check = self.get_project(project_id = pid)
+                if project_check.empty:
+                    raise rsexceptions.ReadStoreError(f'Project with id {pid} not found')
+            
+        # Check if project names exist
+        if project_names:
+            for pname in project_names:
+                project_check = self.get_project(project_name = pname)
+                if project_check.empty:
+                    raise rsexceptions.ReadStoreError(f'Project with name {pname} not found')
+        
+        # Get the dataset // pop id
+        dataset = self.get(dataset_id = dataset_id, return_type='json')
+    
+        if dataset == {}:
+            raise rsexceptions.ReadStoreError('Dataset not found')
 
+        # Create new dataset update dict
+        # If update values are defined, use them, else use existing values
+        dataset_update = {
+            'dataset_id' : dataset_id,
+            'name' : dataset_name if dataset_name else dataset['name'],
+            'description' : description if description else dataset['description'],
+            'project_ids' : project_ids if project_ids else dataset['project_ids'],
+            'project_names' : project_names if project_names else dataset['project_names'],
+            'metadata' : metadata if metadata else dataset['metadata'],
+            'qc_passed' : dataset['qc_passed'],
+            'paired_end' : dataset['paired_end'],
+            'index_read' : dataset['index_read'],
+            'fq_file_i1_id' : dataset['fq_file_i1'],
+            'fq_file_i2_id' : dataset['fq_file_i2'],
+            'fq_file_r1_id' : dataset['fq_file_r1'],
+            'fq_file_r2_id' : dataset['fq_file_r2']
+        }
+        
+        self.rs_client.update_fastq_dataset(**dataset_update)
+        
+        
+        
     def delete(self,
                dataset_id: int | None = None,
                dataset_name: str | None = None):
@@ -426,7 +494,6 @@ class Client():
                                                         dataset_id,
                                                         dataset_name)
     
-    
     def list_projects(self,
                       return_type: str | None = None) -> pd.DataFrame | List[dict]:
         """List Projects
@@ -452,6 +519,22 @@ class Client():
         return projects
     
     
+    def list_projects_metadata(self) -> pd.DataFrame:
+        """List Projects Metadata
+
+        Returns:
+            pd.DataFrame: Projects Metadata with metadata keys as columns
+        """
+        
+        projects = self.list_projects(return_type='pandas')
+        
+        if projects.empty:
+            return pd.DataFrame()
+        else:
+            metadata = projects['metadata'].apply(pd.Series)
+            return metadata
+        
+    
     def get_project(self,
                     project_id: int | None = None,
                     project_name: str | None = None,
@@ -461,7 +544,8 @@ class Client():
         Args:
             project_id: Project ID. Defaults to None.
             project_name: Project Name. Defaults to None.
-            return_type: Specify return type. Default use return type from object.
+            return_type: Specify return type. Default use return type from Client instance.
+                Options: 'pandas', 'json'
 
         Raises:
             rsexceptions.ReadStoreError: _description_
@@ -487,8 +571,9 @@ class Client():
         
         return project
     
+    
     def create_project(self,
-                       name: str,
+                       project_name: str,
                        description: str = '',
                        metadata: dict = {},
                        dataset_metadata_keys: List[str] = []):
@@ -508,15 +593,37 @@ class Client():
         """
         
         # Check if project with name already exists
-        project_check = self.get_project(project_name = name)
+        project_check = self.get_project(project_name = project_name)
         if not project_check.empty:
-            raise rsexceptions.ReadStoreError(f'Project with name {name} already exists')
+            raise rsexceptions.ReadStoreError(f'Project with name {project_name} already exists')
         
-        self.rs_client.create_project(name,
+        self.rs_client.create_project(project_name,
                                       description,
                                       metadata,
                                       dataset_metadata_keys)
 
+    def update_project(self,
+                        project_id: int,
+                        project_name: str | None = None,
+                        description: str | None = None,
+                        metadata: dict | None = None,
+                        dataset_metadata_keys: List[str] | None = None):
+        
+        project = self.get_project(project_id = project_id, return_type='json')
+        
+        if project == {}:
+            raise rsexceptions.ReadStoreError('Project not found')
+        
+        project_update = {
+            'project_id' : project_id,
+            'name' : project_name if project_name else project['name'],
+            'description' : description if description else project['description'],
+            'metadata' : metadata if metadata else project['metadata'],
+            'dataset_metadata_keys' : dataset_metadata_keys if dataset_metadata_keys else project['dataset_metadata_keys']
+        }
+        
+        self.rs_client.update_project(**project_update)
+    
 
     def delete_project(self,
                        project_id: int | None = None,
@@ -699,6 +806,41 @@ class Client():
             pro_data = self._convert_json_to_pandas(pro_data, rsdataclasses.RSProData)
         
         return pro_data
+    
+    def list_pro_data_metadata(self,
+                                project_id: int | None = None,
+                                project_name: str | None = None,
+                                dataset_id: int | None = None,
+                                dataset_name: str | None = None,
+                                name: str | None = None,
+                                data_type: str | None = None,
+                                include_archived: bool = False) -> pd.DataFrame:
+        """List ProData Metadata
+
+            Args:
+                project_id: Filter by Project ID. Defaults to None.
+                project_name: Filter by Project Name. Defaults to None.
+                dataset_id: Filter by Dataset ID. Defaults to None.
+                dataset_name: Filter by Dataset Name. Defaults to None.
+                name: Filter by name. Defaults to None.
+                data_type: Filter by data type. Defaults to None.
+                include_archived: Return archived. Defaults to False.
+        """
+        
+        pro_data = self.list_pro_data(project_id=project_id,
+                                        project_name=project_name,
+                                        dataset_id=dataset_id,
+                                        dataset_name=dataset_name,
+                                        name=name,
+                                        data_type=data_type,
+                                        include_archived=include_archived,
+                                        return_type='pandas')
+        
+        if pro_data.empty:
+            return pd.DataFrame()
+        else:
+            metadata = pro_data['metadata'].apply(pd.Series)
+            return metadata
         
         
     def get_pro_data(self,
