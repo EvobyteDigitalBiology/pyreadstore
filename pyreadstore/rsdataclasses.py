@@ -63,15 +63,14 @@ class RSFqFile(BaseModel):
     creator: str
     upload_path: str
     md5_checksum: str
-    
-    
+
 class RSProject(BaseModel):
     id: int
     name: str
     metadata: dict
+    dataset_metadata_keys: dict
     attachments: List[str]
     
-
 class RSProjectDetail(BaseModel):
     id: int
     name: str
@@ -79,6 +78,7 @@ class RSProjectDetail(BaseModel):
     created: datetime.datetime
     creator: str
     metadata: dict
+    dataset_metadata_keys: dict
     attachments: List[str]
     
 class RSProData(BaseModel):
