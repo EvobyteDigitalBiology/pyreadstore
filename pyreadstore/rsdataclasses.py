@@ -15,6 +15,20 @@
 # limitations under the License.
 
 
+"""
+Provides Pydantic data classes for ReadStore API validation.
+
+Classes:
+    - RSFqDataset
+    - RSFqDatasetDetail
+    - RSFqFile
+    - RSProject
+    - RSProjectDetail
+    - RSProData
+    - RSProDataDetail
+
+"""
+
 from typing import List
 import datetime
 
