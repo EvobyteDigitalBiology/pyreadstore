@@ -188,3 +188,5 @@ readstore_basic/backend/app/migrations/*
 rs/*
 
 run_build.sh
+
+.flake8
