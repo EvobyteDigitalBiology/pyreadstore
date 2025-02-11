@@ -427,37 +427,42 @@ class Client:
         if dataset == {}:
             raise rsexceptions.ReadStoreError("Dataset not found")
         
-    
-        # If either project_ids or project_names are empty []
-        # Set the other one empty as well to enforce reset of project_ids
-        if (project_ids == []) or (project_names == []):
-            project_ids = []
-            project_names = []
-        else:
-            # Check if project_ids and names exist
-            # Project IDs and Names can be None, Empty list of None (ignore)
-            # In None case use existing values
-            if project_ids:
-                for pid in project_ids:
-                    project_check = self.get_project(project_id=pid)
-                    if project_check.empty:
-                        raise rsexceptions.ReadStoreError(
-                            f"Project with id {pid} not found"
-                        )
-            elif project_ids is None:
-                project_ids = dataset["project_ids"]
-                
-            # Check if project names exist
-            if project_names:
-                for pname in project_names:
-                    project_check = self.get_project(project_name=pname)
-                    if project_check.empty:
-                        raise rsexceptions.ReadStoreError(
-                            f"Project with name {pname} not found"
-                        )
-            elif project_names is None:
-                project_names = dataset["project_names"]
+        project_ids_new = None
+        project_names_new = None
         
+        # If both project_ids and project_names are None, take over existing values
+        if (project_ids is None) and (project_names is None):
+            project_ids_new = dataset["project_ids"]
+            project_names_new = dataset["project_names"]
+        
+        # Check if project_ids and names exist
+        # Project IDs and Names can be None, Empty list of None (ignore)
+        # In None case use existing values
+        if project_ids:
+            for pid in project_ids:
+                project_check = self.get_project(project_id=pid)
+                if project_check.empty:
+                    raise rsexceptions.ReadStoreError(
+                        f"Project with id {pid} not found"
+                    )
+            else:
+                project_ids_new = project_ids
+            
+        # Check if project names exist
+        if project_names:
+            for pname in project_names:
+                project_check = self.get_project(project_name=pname)
+                if project_check.empty:
+                    raise rsexceptions.ReadStoreError(
+                        f"Project with name {pname} not found"
+                    )
+            else:
+                project_names_new = project_names
+        
+        if project_ids_new is None:
+            project_ids_new = []
+        if project_names_new is None:
+            project_names_new = []
         
         # Create new dataset update dict
         # If update values are defined, use them, else use existing values
@@ -465,8 +470,8 @@ class Client:
             "dataset_id": dataset_id,
             "name": dataset_name if dataset_name else dataset["name"],
             "description": description if description else dataset["description"],
-            "project_ids": project_ids,
-            "project_names": project_names,
+            "project_ids": project_ids_new,
+            "project_names": project_names_new,
             "metadata": metadata if metadata else dataset["metadata"],
             "qc_passed": dataset["qc_passed"],
             "paired_end": dataset["paired_end"],
@@ -477,7 +482,10 @@ class Client:
             "fq_file_r2_id": dataset["fq_file_r2"],
         }
 
+        print(dataset_update)
+        
         self.rs_client.update_fastq_dataset(**dataset_update)
+
 
     def delete(self, dataset_id: int | None = None, dataset_name: str | None = None):
         """Delete Dataset
