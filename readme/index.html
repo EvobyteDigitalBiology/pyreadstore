@@ -1,0 +1,1200 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../changelog/">
+      
+      
+      <link rel="icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
+    
+    
+      
+        <title>Readme - pyreadstore Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.d7758b05.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pyreadstore-sdk" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://evo-byte.com/readstore" title="pyreadstore Docs" class="md-header__button md-logo" aria-label="pyreadstore Docs" data-md-component="logo">
+      
+  <img src="../assets/BannerLarge.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pyreadstore Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Readme
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  Readme
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/readstore/" class="md-tabs__link">
+        
+  
+    
+  
+  pyreadstore package
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://evo-byte.com/readstore" title="pyreadstore Docs" class="md-nav__button md-logo" aria-label="pyreadstore Docs" data-md-component="logo">
+      
+  <img src="../assets/BannerLarge.png" alt="logo">
+
+    </a>
+    pyreadstore Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Readme
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Readme
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Table of Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-lean-solution-for-managing-ngs-and-omics-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Lean Solution for Managing NGS and Omics Data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      Description
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security and Permissions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security and Permissions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-accounts-and-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Accounts and Token
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-your-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting Your Credentials
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#readstore-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      ReadStore API
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ReadStore API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#api-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Endpoint
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-reponse" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Reponse
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quickstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quickstart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-the-python-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure the Python Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access Datasets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Edit Datasets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Edit Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-processed-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access Processed Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Download Attachments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-fastq-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upload FASTQ files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Upload FASTQ files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reserved-keywords" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reserved keywords
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contributing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-you-can-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      How You Can Help
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contribution-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribution Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      License
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credits-and-acknowledgments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credits and Acknowledgments
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/readstore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyreadstore package
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p><img alt="GitHub Release" src="https://img.shields.io/github/v/release/EvobyteDigitalBiology/pyreadstore" />
+<img alt="PyPI - Version" src="https://img.shields.io/pypi/v/pyreadstore" />
+<img alt="Build Status" src="https://img.shields.io/badge/build-passing-brightgreen" /></p>
+<h1 id="pyreadstore-sdk">PyReadStore SDK</h1>
+<p>This README describes PyReadStore, the Python client (SDK) for the ReadStore API. </p>
+<p>The full <strong>ReadStore Basic documentation</strong> is available <a href="https://evobytedigitalbiology.github.io/readstore/">here</a> </p>
+<p>PyReadStore can be used to access Projects, Datasets, ProData as well as metadata and attachment files in the ReadStore Database from Python code. 
+The package enables you to automate your bioinformatics pipelines, Python scripts and notebooks.</p>
+<p>Check the <a href="https://github.com/EvobyteDigitalBiology/readstore">ReadStore Github repository</a> for more information on how to get started with ReadStore and setting up your server.</p>
+<p>More infos on the <a href="https://evo-byte.com/readstore/">ReadStore website</a></p>
+<p>Tutorials and Intro Videos: https://www.youtube.com/@evobytedigitalbio</p>
+<p>Blog posts and How-Tos: https://evo-byte.com/blog/</p>
+<p>For general questions reach out to info@evo-byte.com or in case of technical problems to support@evo-byte.com</p>
+<p>Happy analysis :)</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#description">Description</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#api">ReadStore API</a></li>
+<li><a href="#usage">Usage</a><ol>
+<li><a href="#quickstart">Quickstart</a></li>
+<li><a href="#client_config">Client Config</a></li>
+<li><a href="#access_datasets">Datasets</a></li>
+<li><a href="#access_projects">Project</a></li>
+<li><a href="#access_prodata">ProData</a></li>
+<li><a href="#download_attach">Download</a></li>
+<li><a href="#upload_fastq">Upload FASTQ</a></li>
+</ol>
+</li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#license">License</a></li>
+<li><a href="#acknowledgments">Credits and Acknowledgments</a></li>
+</ul>
+<h2 id="the-lean-solution-for-managing-ngs-and-omics-data">The Lean Solution for Managing NGS and Omics Data</h2>
+<p>ReadStore is a platform for storing, managing, and integrating omics data. It speeds up analysis and offers a simple way of managing and sharing NGS omics datasets, metadata and processed data (<strong>Pro</strong>cessed <strong>Data</strong>).
+Built-in project and metadata management structures your workflows and a collaborative user interface enhances teamwork — so you can focus on generating insights.</p>
+<p>The integrated Webservice (API) enables your to directly retrieve data from ReadStore via the terminal <a href="https://github.com/EvobyteDigitalBiology/readstore-cli">Command-Line-Interface (CLI)</a> or <a href="https://github.com/EvobyteDigitalBiology/pyreadstore">Python</a> / <a href="https://github.com/EvobyteDigitalBiology/r-readstore">R</a> SDKs.</p>
+<p>The ReadStore Basic version provides a local webserver with a simple user management. If you need an organization-wide deployment, advanced user and group management or cloud integration please check the ReadStore Advanced versions and reach out to info@evo-byte.com.</p>
+<h2 id="description">Description</h2>
+<p>PyReadStore is a Python client (SDK) that lets you easily connect to your ReadStore server and interact with the ReadStore API.
+By importing the pyreadstore package in Python, you can quickly retrieve data from a ReadStore server.</p>
+<p>This tool provides streamlined and standardized access to NGS datasets and metadata, helping you run analyses more efficiently and with fewer errors.
+You can easily scale your pipelines, and if you need to migrate or move NGS data, updating the ReadStore database ensures all your workflows stay up-to-date.</p>
+<h2 id="security-and-permissions">Security and Permissions<a id="backup"></a></h2>
+<p><strong>PLEASE READ AND FOLLOW THESE INSTRUCTIONS CAREFULLY!</strong></p>
+<h3 id="user-accounts-and-token">User Accounts and Token<a id="token"></a></h3>
+<p>Using PyReadStore requires an active user account and a token (and a running ReadStore server). </p>
+<p>You should <strong>never enter your user account password</strong> when working with PyReadStore.</p>
+<p>To retrieve your token:</p>
+<ol>
+<li>Login to the ReadStore app via your browser</li>
+<li>Navigate to <code>Settings</code> page and click on <code>Token</code></li>
+<li>You can regenerate your token anytime (<code>Reset</code>). This will invalidate the previous token</li>
+</ol>
+<p>For uploading FASTQ files your user account needs to have <code>Staging Permission</code>.
+You can check this in the <code>Settings</code> page of your account.
+If you not have <code>Staging Permission</code>, ask your ReadStore server admin to grant you permission.</p>
+<h3 id="setting-your-credentials">Setting Your Credentials</h3>
+<p>You need to provide the PyReadStore client with valid ReadStore credentials.</p>
+<p>There are different options</p>
+<ol>
+<li>
+<p>Load credentials from the ReadStore <code>config</code> file. 
+The file is generated by the <a href="https://github.com/EvobyteDigitalBiology/readstore-cli">ReadStore CLI</a>,
+by default in your home directory (<code>~/.readstore/</code>). Make sure to keep read permissions to the file restrictive</p>
+</li>
+<li>
+<p>Directly enter your username and token when instantiating a PyReadStore client within your Python code</p>
+</li>
+<li>
+<p>Set username and token via environment variables (<code>READSTORE_USERNAME</code>, <code>READSTORE_TOKEN</code>). This is useful in container or cloud environments.</p>
+</li>
+</ol>
+<h2 id="installation">Installation</h2>
+<p><code>pip3 install pyreadstore</code></p>
+<p>You can perform the install in a conda or venv virtual environment to simplify package management.</p>
+<p>A local install is also possible</p>
+<p><code>pip3 install --user pyreadstore</code></p>
+<pre><code class="language-python">import pyreadstore
+</code></pre>
+<h2 id="readstore-api">ReadStore API<a id="api"></a></h2>
+<p>The <strong>ReadStore Basic</strong> server provides a RESTful API for accessing resources via HTTP requests.<br />
+This API extends the functionalities of the ReadStore CLI as well as the Python and R SDKs.</p>
+<h3 id="api-endpoint">API Endpoint</h3>
+<p>By default, the API is accessible at:<br />
+<code>http://127.0.0.1:8000/api_x_v1/</code></p>
+<h3 id="authentication">Authentication</h3>
+<p>Users must authenticate using their username and token via the Basic Authentication scheme.</p>
+<h3 id="example-usage">Example Usage</h3>
+<p>Below is an example demonstrating how to use the ReadStore CLI to retrieve an overview of Projects by sending an HTTP <code>GET</code> request to the <code>project/</code> endpoint.<br />
+In this example, the username is <code>testuser</code>, and the token is <code>0dM9qSU0Q5PLVgDrZRftzw</code>. You can find your token in the ReadStore settings.</p>
+<pre><code class="language-bash">curl -X GET -u testuser:0dM9qSU0Q5PLVgDrZRftzw http://localhost:8000/api_x_v1/project/
+</code></pre>
+<h4 id="example-reponse">Example Reponse</h4>
+<p>A successful HTTP response returns a JSON-formatted string describing the project(s) in the ReadStore database. Example response:</p>
+<pre><code>[{
+  &quot;id&quot;: 4,
+  &quot;name&quot;: &quot;TestProject99&quot;,
+  &quot;metadata&quot;: {
+    &quot;key1&quot;: &quot;value1&quot;,
+    &quot;key2&quot;: &quot;value2&quot;
+  },
+  &quot;attachments&quot;: []
+}]
+</code></pre>
+<h3 id="documentation">Documentation</h3>
+<p>Comprehensive <a href="https://evobytedigitalbiology.github.io/readstore/rest_api/">API documentation</a> is available in the ReadStore Basic Docs.</p>
+<h2 id="usage">Usage</h2>
+<p>Detailed tutorials, videos and explanations are found on <a href="https://www.youtube.com/playlist?list=PLk-WMGySW9ySUfZU25NyA5YgzmHQ7yquv">YouTube</a> or on the <a href="https://evo-byte.com/blog"><strong>EVO</strong>BYTE blog</a>.</p>
+<h3 id="quickstart">Quickstart<a id="quickstart"></a></h3>
+<p>Let's access some dataset and project data from the ReadStore database!</p>
+<p>Make sure a ReadStore server is running and reachable (by default under <code>127.0.0.1:8000</code>).
+You can enter (<code>http://127.0.0.1:8000/api_v1/</code>) in your browser and should get a response from the API.</p>
+<p>We assume you ran <code>readstore configure</code> before to create a config file for your user.
+If not, consult the <a href="https://github.com/EvobyteDigitalBiology/readstore-cli">ReadStore CLI</a> README on how to set this up.</p>
+<p>We will create a client instance and perform some operations to retrieve data from the ReadStore database.
+More information on all available methods can be found below.</p>
+<pre><code class="language-python">import pyreadstore
+
+rs_client = pyreadstore.Client() # Create an instance of the ReadStore client
+
+# Manage Datasets
+
+datasets = rs_client.list()      # List all datasets and return pandas dataframe
+
+datasets_project_1 = rs_client.list(project_id = 1) # List all datasets for project 1
+
+datasets_id_25 = rs_client.get(dataset_id = 25)     # Get detailed data for dataset 25
+
+# Manage Projects
+
+projects = rs_client.list_projects()                # List all projects
+
+projects = rs_client.get_project(project_name = 'MyProject') # Get details for MyProject
+
+fastq_data_id_25 = rs_client.get_fastq(dataset_id = 25)     # Get fastq file data for dataset 25
+
+rs_client.download_attachment(dataset_id = 25,              # Download files attached to dataset 25
+                              attachment_name = 'gene_table.tsv') 
+
+# Manage Processed Data
+
+rs_client.upload_pro_data(name = 'sample_1_count_matrix',      # Set name of count matrix
+                            pro_data_file = 'path/to/sample_1_counts.h5',   # Set file path
+                            data_type = 'count_matrix',                     # Set type to 'count_matrix'
+                            dataset_id = 25)                                # Set dataset id for upload
+
+pro_data_project_1 = rs_client.list_pro_data(project_id = 1) # Get all ProData entries for Project 1
+
+pro_data = rs_client.get_pro_data(name = 'sample_1_count_matrix',   # Set name to sample_1_count_matrix
+                                dataset_id = 25)                    # dataset_id
+
+pro_data_id = rs_client.delete_pro_data(name = 'sample_1_count_matrix',
+                                        dataset_id = 25)
+
+# Ingest FASTQ files
+
+rs_client.upload_fastq(fastq = ['path/to_fastq_r1.fq', 'path/to_fastq_r2.fq'], # Upload a FASTQ files
+                        fastq_name = ['sample_rep_1_r1', 'sample_rep_1_r2'],    # Set FASTQ names
+                        read_type = ['R1', 'R2'])                               # Set individual FASTQ read types
+</code></pre>
+<h3 id="configure-the-python-client">Configure the Python Client<a id="client_config"></a></h3>
+<p>The Client is the central object and provides authentication against the ReadStore API.
+By default, the client will try to read the <code>~/.readstore/config</code> credentials file.
+You can change the directory if your config file is located in another folder.</p>
+<p>If you set the <code>username</code> and <code>token</code> arguments, the client will use these credentials instead.</p>
+<p>If your ReadStore server is not running under localhost (<code>127.0.0.1</code>) port <code>8000</code>, you can adapt the default settings.</p>
+<pre><code class="language-python">pyreadstore.Client(config_dir: str = '~/.readstore',  # Directory containing ReadStore credentials
+                  username: str | None = None,        # Username
+                  token : str | None = None,          # Token
+                  host: str = 'http://localhost',     # Hostname / IP of ReadStore server
+                  return_type: str = 'pandas',        # Default return types, can be pandas or json
+                  port: int = 8000,                   # Server Port Number
+                  fastq_extensions: List[str] = ['.fastq','.fastq.gz','.fq','.fq.gz']) 
+                  # Accepted FASTQ file extensions for upload validation 
+</code></pre>
+<p>Is is possible to set userame, token, server endpoint and fastq extensions using the listed environment variables. 
+The enironment variables precede over other client configurations.</p>
+<ul>
+<li><code>READSTORE_USERNAME</code> (username)</li>
+<li><code>READSTORE_TOKEN</code> (token)</li>
+<li><code>READSTORE_ENDPOINT_URL</code> (<code>http://host:post</code>, e.g. <code>http://localhost:8000</code>)</li>
+<li><code>READSTORE_FASTQ_EXTENSIONS</code> (fastq_extensions, <code>'.fastq',.fastq.gz,.fq,.fq.gz'</code>)</li>
+</ul>
+<p><strong>Possible errors</strong></p>
+<pre><code>- Connection Error:     If no ReadStore server was found at the provided endpoint
+- Authentication Error: If provided username or token are not found
+- No Permission to Upload/Delete FASTQ/ProData: User has no [Staging Permissions]
+</code></pre>
+<h3 id="access-datasets">Access Datasets<a id="access_datasets"></a></h3>
+<pre><code class="language-python"># List ReadStore Datasets
+
+rs_client.list(project_id: int | None = None,   # Filter datasets for project with id `project_id`
+              project_name: str | None = None,  # Filter datasets for project with name `project_name`
+               return_type: str | None = None   # Return pd.DataFrame or JSON type
+               ) -&gt; pd.DataFrame | List[dict]
+
+# Get ReadStore Dataset Details
+# Provide dataset_id OR dataset_name
+
+rs_client.get(dataset_id: int| None = None,     # Get dataset with id `dataset_id`
+              dataset_name: str | None = None,  # Filter datasets with name `dataset_name`
+              return_type: str | None = None    # Return pd.Series or json(dict)
+              ) -&gt; pd.Series | dict
+
+# Get FASTQ file data for a dataset
+# Provide dataset_id OR dataset_name
+
+rs_client.get_fastq(dataset_id: int| None = None,    # Get fastq data for dataset with id `dataset_id`
+                  dataset_name: str | None = None,   # Get fastq data for dataset `dataset_name`
+                  return_type: str | None = None     # Return pd.Series or json(dict)
+                  ) -&gt; pd.DataFrame | List[dict]
+
+# Return metadata for datasets in a dedicated pandas dataframe
+# Metadata keys are pivoted as column, and values as rows 
+
+rs_client.list_metadata(project_id: int | None = None,   # Subset by project_id
+                        project_name: str | None = None  # Subset by project_name
+                        ) -&gt; pd.DataFrame:
+
+</code></pre>
+<h3 id="edit-datasets">Edit Datasets</h3>
+<p><strong>NOTE</strong> Editing methods as create or delete require <code>Staging Permission</code> authorization.</p>
+<p>When creating datasets, the <code>name</code> argument and <code>metadata</code> dictionary are checked for consistency: Each must not be empty, contain only alphanumeric characters (plus _-.@). Metadata keys must not contain reserved keywords (listed below).</p>
+<pre><code class="language-python"># Create an empty Dataset, without FASTQ files attached
+
+# Name must be unique in Database
+# Optionally define Project IDs and/or Project names to attach Dataset to.  
+
+rs_client.create(dataset_name: str,                       # Set name
+                 description: str = '',           # Set description. Defaults to ''.
+                 project_ids: List[int] = [],     # Set project_ids. Defaults to [].
+                 project_names: List[str] = [],   # Set project_names. Defaults to [].
+                 metadata: dict = {})              # Set metadata. Defaults to {}.
+
+# Update a Dataset
+# Dataset_id must be provided to define the dataset to update.
+# Only arguments where a new values is specied will be updated.
+# Argument with None value remain unaltered.
+
+rs_client.update(dataset_id: int,                 # Set ID to update
+                dataset_name: str | None = None,  # Updated name (optional)
+                description: str | None = None,   # Updated description (optional)
+                project_ids: List[int] | None = None,   # Updated project_ids (optional)
+                project_names: List[str] | None = None, # Updated project_names (optional)
+                metadata: dict | None = None,           # Updated metadata (optional)
+
+# Provide empty project_ids or project_names list [] to unset all associated projects
+
+# Delete Dataset (and attached FASTQ files)
+# Either dataset_id or dataset_name argument must be provided
+
+rs_client.delete(dataset_id: int | None = None,   # Delete by ID. Defaults to None.
+                 dataset_name: str | None = None)  # Delete by Name. Defaults to None.
+</code></pre>
+<h3 id="access-projects">Access Projects<a id="access_projects"></a></h3>
+<pre><code class="language-python"># List ReadStore Projects
+
+rs_client.list_projects(return_type: str | None = None   # Return pd.DataFrame or JSON type
+                        ) -&gt; pd.DataFrame | List[dict]
+
+# Get ReadStore Project Details
+# Provide project_id OR project_name
+
+rs_client.get_project(project_id: int| None = None,     # Get dataset with id `project_id`
+                      project_name: str | None = None,  # Filter datasets with name `project_name`
+                      return_type: str | None = None    # Return pd.Series or json(dict)
+                      ) -&gt; pd.Series | dict
+
+# Return metadata for datasets in a dedicated pandas dataframe
+# Metadata keys are pivoted as column, and values as rows 
+
+rs_client.list_projects_metadata() -&gt; pd.DataFrame:
+
+</code></pre>
+<h3 id="edit-projects">Edit Projects</h3>
+<p><strong>NOTE</strong> Editing methods as create or delete require <code>Staging Permission</code> authorization. </p>
+<p>When creating datasets, the <code>name</code> argument and <code>metadata</code> dictionary are checked for consistency: Each must not be empty, contain only alphanumeric characters (plus _-.@). Metadata keys must not contain reserved keywords (listed below).</p>
+<pre><code class="language-python"># Create ReadStore Project
+
+# name must be unique in Database
+# dataset_metadata_keys can be attached and will be set as default metadata keys for attached datasets
+
+rs_client.create_project(project_name: str,                       # Set Project name
+                         description: str = '',           # Set Project description. Defaults to ''.
+                         metadata: dict = {},             # Set Project metadata. Defaults to {}.
+                         dataset_metadata_keys: List[str] = [])  # Set dataset metadata keys. Defaults to [].
+
+# Update a Project
+# Project_id must be provided to define the project to update.
+# Only arguments where a new values is specied will be updated.
+# Argument with None value remain unaltered.
+
+rs_client.update_project(project_id: int,                # Set project id to update
+                         project_name: str | None = None, # Updated name (optional)
+                         description: str | None = None,  # Updated description (optional)
+                         metadata: dict | None = None,    # Updated metadata (optional)
+                         dataset_metadata_keys: List[str] | None = None) # Updated metadata keys (optional)
+
+# Delete ReadStore Project
+# Either project_id or project_name argument must be provided
+
+rs_client.delete_project(project_id: int | None = None,    # Delete by ID. Defaults to None.
+                         project_name: str | None = None)  # Delete by Name. Defaults to None.
+</code></pre>
+<h3 id="access-processed-data">Access <strong>Pro</strong>cessed <strong>Data</strong><a id="access_prodata"></a></h3>
+<pre><code class="language-python"># Upload Processed Data
+
+rs_client.upload_pro_data(name: str,                # Name of ProData
+                        pro_data_file: str,         # Set ProData file path
+                        data_type: str,             # Set ProData data type
+                        description: str = '',      # Description for ProData
+                        metadata: dict = {},        # MetaData
+                        dataset_id: int | None = None,  # Dataset ID to assign ProData to
+                        dataset_name: str | None = None)# Dataset Name to assign ProData to
+
+# Must provide dataset_id or dataset_name
+
+# List and filter Processed Data
+
+rs_client.list_pro_data(project_id: int | None = None,      # Filter by Project ID
+                        project_name: str | None = None,    # Filter by Project Name
+                        dataset_id: int | None = None,      # Filter by Dataset ID
+                        dataset_name: str | None = None,    # Filter by Dataset Name
+                        name: str | None = None,            # Filter by ProData name
+                        data_type: str | None = None,       # Filter by ProData data type
+                        include_archived: bool = False,     # Include archived
+                        return_type: str | None = None) -&gt; pd.DataFrame | List[dict]
+
+# Get individual ProData entry
+
+rs_client.get_pro_data(pro_data_id: int | None = None,  # Get ProData by ID
+                        dataset_id: int | None = None,  # Get ProData by Dataset ID
+                        dataset_name: str | None = None, # Get ProData by Dataset Name
+                        name: str | None = None,        # Get ProData by Name ID
+                        version: int | None = None,     # Get specific verion, None returns latest valid version
+                        return_type: str | None = None) -&gt; pd.Series | dict
+
+# Provide ID or Name + Dataset ID/Name
+
+# Get metadata from ProData entries
+
+rs_client.list_pro_data_metadata(project_id: int | None = None, # Subset by project ID
+                                project_name: str | None = None, # Subset by project name
+                                dataset_id: int | None = None,   # Subset by Dataset ID
+                                dataset_name: str | None = None, # Subset by Dataset Name
+                                name: str | None = None,         # Subset by ProData Name
+                                data_type: str | None = None,    # Subset by ProData Type
+                                include_archived: bool = False  # Include Archived entries
+                                ) -&gt; pd.DataFrame
+
+# Delete ProData entry
+
+rs_client.delete_pro_data(pro_data_id: int | None = None,   # Delete by ProData ID
+                        dataset_id: int | None = None,      # Delete by Dataset ID
+                        dataset_name: str | None = None,    # Delete by Dataset Name
+                        name: str | None = None,            # Delete by name
+                        version: int | None = None):        # Delete specific version
+
+# Provide ID or Name + Dataset ID/Name for delete
+</code></pre>
+<h3 id="download-attachments">Download Attachments<a id="download_attach"></a></h3>
+<pre><code class="language-python"># Download project attachment file from ReadStore Database 
+
+rs_client.download_project_attachment(attachment_name: str,            # name of attachment file
+                                      project_id: int | None = None,   # project id with attachment
+                                      project_name: str | None = None, # project name with attachment
+                                      outpath: str | None = None)      # Path to download file to
+
+# Download dataset attachment file from ReadStore Database 
+
+rs_client.download_attachment(attachment_name: str,             # name of attachment file
+                              dataset_id: int | None = None,    # datatset id with attachment
+                              dataset_name: str | None = None,  # datatset name with attachment
+                              outpath: str | None = None)       # Path to download file to
+</code></pre>
+<h3 id="upload-fastq-files">Upload FASTQ files<a id="upload_fastq"></a></h3>
+<p>Upload FASTQ files to ReadStore server. The methods checks if the FASTQ files exist and end with valid FASTQ ending.</p>
+<pre><code class="language-python"># Upload FASTQ files to ReadStore 
+
+rs_client.upload_fastq(fastq : List[str] | str)  # Path of FASTQ files to upload
+</code></pre>
+<h4 id="reserved-keywords">Reserved keywords</h4>
+<p>The following keywords must not be used as metadata keys</p>
+<pre><code>'id','name','project','project_ids','project_names','owner_group_name','qc_passed','paired_end',
+'index_read','created','description','owner_username','fq_file_r1','fq_file_r2','fq_file_i1',
+'fq_file_i2','id_project','name_project','name_og','archived','collaborators','dataset_metadata_keys',
+'data_type','version','valid_to','upload_path','owner_username','fq_dataset','id_fq_dataset','name_fq_dataset'
+</code></pre>
+<h2 id="contributing">Contributing</h2>
+<p>Contributions make this project better! Whether you want to report a bug, improve documentation, or add new features, any help is welcomed!</p>
+<h3 id="how-you-can-help">How You Can Help</h3>
+<ul>
+<li>Report Bugs</li>
+<li>Suggest Features</li>
+<li>Improve Documentation</li>
+<li>Code Contributions</li>
+</ul>
+<h3 id="contribution-workflow">Contribution Workflow</h3>
+<ol>
+<li>Fork the repository and create a new branch for each contribution.</li>
+<li>Write clear, concise commit messages.</li>
+<li>Submit a pull request and wait for review.</li>
+</ol>
+<p>Thank you for helping make this project better!</p>
+<h2 id="license">License</h2>
+<p>The pyreadstore is licensed under an Apache 2.0 Open Source License.
+See the LICENSE file for more information.</p>
+<h2 id="credits-and-acknowledgments">Credits and Acknowledgments<a id="acknowledgments"></a></h2>
+<p>pyreadstore is built upon the following open-source python packages and would like to thank all contributing authors, developers and partners.</p>
+<ul>
+<li>Python (https://www.djangoproject.com/)</li>
+<li>requests (https://requests.readthedocs.io/en/latest/)</li>
+<li>pydantic (https://docs.pydantic.dev/latest/)</li>
+<li>pandas (https://pandas.pydata.org/)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024-2025 EVOBYTE Digital Biology Dr. Jonathan Alles
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/EvobyteDigitalBiology/pyreadstore" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annnotation", "content.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      
+    
+  </body>
+</html>
