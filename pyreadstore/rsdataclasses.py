@@ -15,6 +15,20 @@
 # limitations under the License.
 
 
+"""
+Provides Pydantic data classes for ReadStore API validation.
+
+Classes:
+    - RSFqDataset
+    - RSFqDatasetDetail
+    - RSFqFile
+    - RSProject
+    - RSProjectDetail
+    - RSProData
+    - RSProDataDetail
+
+"""
+
 from typing import List
 import datetime
 
@@ -63,15 +77,14 @@ class RSFqFile(BaseModel):
     creator: str
     upload_path: str
     md5_checksum: str
-    
-    
+
 class RSProject(BaseModel):
     id: int
     name: str
     metadata: dict
+    dataset_metadata_keys: dict
     attachments: List[str]
     
-
 class RSProjectDetail(BaseModel):
     id: int
     name: str
@@ -79,6 +92,7 @@ class RSProjectDetail(BaseModel):
     created: datetime.datetime
     creator: str
     metadata: dict
+    dataset_metadata_keys: dict
     attachments: List[str]
     
 class RSProData(BaseModel):

@@ -2,6 +2,15 @@
 
 pyreadstore - ReadStore Python SDK
 
+## [1.3.0] - 2025-02-10
+
+**Features**
+- Add list_metadata methods for project, datasets and ProData to format metadata as data frame
+- Add update methods for projects and datasets
+
+**Updates**
+- Code Formatting
+
 ## [1.2.0] - 2024-12-23
 
 **Features**

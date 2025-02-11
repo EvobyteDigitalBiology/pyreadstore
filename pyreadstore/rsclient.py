@@ -18,7 +18,7 @@
 Provides client for interacting with ReadStore API.
 
 Classes:
-    - RSClient: Provides client for interacting with ReadStore API.
+    - RSClient: Provides client for interacting with ReadStore API
 
 """
 
@@ -44,16 +44,34 @@ class RSClient:
             output_format: The default output format for the client
 
         Methods:
+            _test_server_connection: Validate server URL
+            _auth_user_token: Validate user and token
+            validate_charset: Validate charset for query string
+            validate_metadata: Validate metadata dict
             get_output_format: Get Output Format set for client
             upload_fastq: Upload Fastq Files
             get_fq_file: Get Fastq File
+            list_fq_files: List Fastq Files
+            create_fq_file: Create Fastq File
+            update_fq_file: Update Fastq File
+            delete_fq_file: Delete Fastq File
             get_fq_file_upload_path: Get FASTQ file upload  path
             list_fastq_datasets: List FASTQ Datasets
             get_fastq_dataset: Get FASTQ dataset
+            create_fastq_dataset: Create Fastq Dataset
+            update_fastq_dataset: Update Fastq Dataset
+            delete_fastq_dataset: Delete Fastq Dataset
             list_projects: List Projects
             get_project: Get Project by id or name
+            create_project: Create Project
+            update_project: Update Project
+            delete_project: Delete Project
             download_project_attachment: Download Project Attachments
             download_fq_dataset_attachment: Download Fastq Attach
+            upload_pro_data: Upload Processed Data
+            list_pro_data: List Processed Data
+            get_pro_data: Get Processed Data
+            delete_pro_data: Delete Processed Data
     """
     
     REST_API_VERSION = "api_x_v1/"

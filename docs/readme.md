@@ -20,7 +20,7 @@ Tutorials and Intro Videos: https://www.youtube.com/@evobytedigitalbio
 
 Blog posts and How-Tos: https://evo-byte.com/blog/
 
-For general questions reach out to info@evo-byte.com
+For general questions reach out to info@evo-byte.com or in case of technical problems to support@evo-byte.com
 
 Happy analysis :)
 
@@ -275,6 +275,14 @@ rs_client.get_fastq(dataset_id: int| None = None,    # Get fastq data for datase
                   dataset_name: str | None = None,   # Get fastq data for dataset `dataset_name`
                   return_type: str | None = None     # Return pd.Series or json(dict)
                   ) -> pd.DataFrame | List[dict]
+
+# Return metadata for datasets in a dedicated pandas dataframe
+# Metadata keys are pivoted as column, and values as rows 
+
+rs_client.list_metadata(project_id: int | None = None,   # Subset by project_id
+                        project_name: str | None = None  # Subset by project_name
+                        ) -> pd.DataFrame:
+
 ```
 
 ### Edit Datasets
@@ -294,7 +302,18 @@ rs_client.create(name: str,                       # Set name
                  project_ids: List[int] = [],     # Set project_ids. Defaults to [].
                  project_names: List[str] = [],   # Set project_names. Defaults to [].
                  metadata: dict = {})              # Set metadata. Defaults to {}.
-                 
+
+# Update a Dataset
+# Dataset_id must be provided to define the dataset to update.
+# Only arguments where a new values is specied will be updated.
+# Argument with None value remain unaltered.
+
+rs_client.update(dataset_id: int,                 # Set ID to update
+                dataset_name: str | None = None,  # Updated name (optional)
+                description: str | None = None,   # Updated description (optional)
+                project_ids: List[int] | None = None,   # Updated project_ids (optional)
+                project_names: List[str] | None = None, # Updated project_names (optional)
+                metadata: dict | None = None,           # Updated metadata (optional)
 
 # Delete Dataset (and attached FASTQ files)
 # Either dataset_id or dataset_name argument must be provided
@@ -319,6 +338,12 @@ rs_client.get_project(project_id: int| None = None,     # Get dataset with id `p
                       project_name: str | None = None,  # Filter datasets with name `project_name`
                       return_type: str | None = None    # Return pd.Series or json(dict)
                       ) -> pd.Series | dict
+
+# Return metadata for datasets in a dedicated pandas dataframe
+# Metadata keys are pivoted as column, and values as rows 
+
+rs_client.list_projects_metadata() -> pd.DataFrame:
+
 ```
 
 ### Edit Projects
@@ -338,8 +363,18 @@ rs_client.create_project(name: str,                       # Set Project name
                          metadata: dict = {},             # Set Project metadata. Defaults to {}.
                          dataset_metadata_keys: List[str] = [])  # Set dataset metadata keys. Defaults to [].
 
-# Delete ReadStore Project
+# Update a Project
+# Project_id must be provided to define the project to update.
+# Only arguments where a new values is specied will be updated.
+# Argument with None value remain unaltered.
 
+rs_client.update_project(project_id: int,                # Set project id to update
+                         project_name: str | None = None, # Updated name (optional)
+                         description: str | None = None,  # Updated description (optional)
+                         metadata: dict | None = None,    # Updated metadata (optional)
+                         dataset_metadata_keys: List[str] | None = None) # Updated metadata keys (optional)
+
+# Delete ReadStore Project
 # Either project_id or project_name argument must be provided
 
 rs_client.delete_project(project_id: int | None = None,    # Delete by ID. Defaults to None.
@@ -383,6 +418,17 @@ rs_client.get_pro_data(pro_data_id: int | None = None,  # Get ProData by ID
 
 # Provide ID or Name + Dataset ID/Name
 
+# Get metadata from ProData entries
+
+rs_client.list_pro_data_metadata(project_id: int | None = None, # Subset by project ID
+                                project_name: str | None = None, # Subset by project name
+                                dataset_id: int | None = None,   # Subset by Dataset ID
+                                dataset_name: str | None = None, # Subset by Dataset Name
+                                name: str | None = None,         # Subset by ProData Name
+                                data_type: str | None = None,    # Subset by ProData Type
+                                include_archived: bool = False  # Include Archived entries
+                                ) -> pd.DataFrame
+
 # Delete ProData entry
 
 rs_client.delete_pro_data(pro_data_id: int | None = None,   # Delete by ProData ID
@@ -421,7 +467,6 @@ Upload FASTQ files to ReadStore server. The methods checks if the FASTQ files ex
 
 rs_client.upload_fastq(fastq : List[str] | str)  # Path of FASTQ files to upload
 ```
-
 
 #### Reserved keywords
 
