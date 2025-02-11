@@ -421,40 +421,52 @@ class Client:
             rsexceptions.ReadStoreError: Project with defined name not found
         """
 
-        # Check if project_ids and names exist
-        if project_ids:
-            for pid in project_ids:
-                project_check = self.get_project(project_id=pid)
-                if project_check.empty:
-                    raise rsexceptions.ReadStoreError(
-                        f"Project with id {pid} not found"
-                    )
-
-        # Check if project names exist
-        if project_names:
-            for pname in project_names:
-                project_check = self.get_project(project_name=pname)
-                if project_check.empty:
-                    raise rsexceptions.ReadStoreError(
-                        f"Project with name {pname} not found"
-                    )
-
         # Get the dataset // pop id
         dataset = self.get(dataset_id=dataset_id, return_type="json")
 
         if dataset == {}:
             raise rsexceptions.ReadStoreError("Dataset not found")
-
+        
+    
+        # If either project_ids or project_names are empty []
+        # Set the other one empty as well to enforce reset of project_ids
+        if (project_ids == []) or (project_names == []):
+            project_ids = []
+            project_names = []
+        else:
+            # Check if project_ids and names exist
+            # Project IDs and Names can be None, Empty list of None (ignore)
+            # In None case use existing values
+            if project_ids:
+                for pid in project_ids:
+                    project_check = self.get_project(project_id=pid)
+                    if project_check.empty:
+                        raise rsexceptions.ReadStoreError(
+                            f"Project with id {pid} not found"
+                        )
+            elif project_ids is None:
+                project_ids = dataset["project_ids"]
+                
+            # Check if project names exist
+            if project_names:
+                for pname in project_names:
+                    project_check = self.get_project(project_name=pname)
+                    if project_check.empty:
+                        raise rsexceptions.ReadStoreError(
+                            f"Project with name {pname} not found"
+                        )
+            elif project_names is None:
+                project_names = dataset["project_names"]
+        
+        
         # Create new dataset update dict
         # If update values are defined, use them, else use existing values
         dataset_update = {
             "dataset_id": dataset_id,
             "name": dataset_name if dataset_name else dataset["name"],
             "description": description if description else dataset["description"],
-            "project_ids": project_ids if project_ids else dataset["project_ids"],
-            "project_names": (
-                project_names if project_names else dataset["project_names"]
-            ),
+            "project_ids": project_ids,
+            "project_names": project_names,
             "metadata": metadata if metadata else dataset["metadata"],
             "qc_passed": dataset["qc_passed"],
             "paired_end": dataset["paired_end"],
