@@ -297,7 +297,7 @@ When creating datasets, the `name` argument and `metadata` dictionary are checke
 # Name must be unique in Database
 # Optionally define Project IDs and/or Project names to attach Dataset to.  
 
-rs_client.create(name: str,                       # Set name
+rs_client.create(dataset_name: str,                       # Set name
                  description: str = '',           # Set description. Defaults to ''.
                  project_ids: List[int] = [],     # Set project_ids. Defaults to [].
                  project_names: List[str] = [],   # Set project_names. Defaults to [].
@@ -314,6 +314,8 @@ rs_client.update(dataset_id: int,                 # Set ID to update
                 project_ids: List[int] | None = None,   # Updated project_ids (optional)
                 project_names: List[str] | None = None, # Updated project_names (optional)
                 metadata: dict | None = None,           # Updated metadata (optional)
+
+# Provide empty project_ids or project_names list [] to unset all associated projects
 
 # Delete Dataset (and attached FASTQ files)
 # Either dataset_id or dataset_name argument must be provided
@@ -358,7 +360,7 @@ When creating datasets, the `name` argument and `metadata` dictionary are checke
 # name must be unique in Database
 # dataset_metadata_keys can be attached and will be set as default metadata keys for attached datasets
 
-rs_client.create_project(name: str,                       # Set Project name
+rs_client.create_project(project_name: str,                       # Set Project name
                          description: str = '',           # Set Project description. Defaults to ''.
                          metadata: dict = {},             # Set Project metadata. Defaults to {}.
                          dataset_metadata_keys: List[str] = [])  # Set dataset metadata keys. Defaults to [].
